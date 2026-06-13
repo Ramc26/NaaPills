@@ -222,10 +222,12 @@ def get_pilltrack_report(days: int = 30) -> dict[str, Any]:
         supp_logged = day_raw.get("_supplements", {})
         for supp in supplement_service.get_all_supplements(on_date):
             entry = supp_logged.get(supp["id"], {})
+            if not isinstance(entry, dict):
+                entry = {"taken": bool(entry), "when": None, "taken_at": None}
             taken = bool(entry.get("taken", False))
-            when = entry.get("when")
+            when = entry.get("when") if isinstance(entry.get("when"), str) else None
             taken_at = entry.get("taken_at")
-            labels = supplement_service.WHEN_LABELS.get(when or {}, {})
+            labels = supplement_service.WHEN_LABELS.get(when or "", {})
             taken_dt = _parse_taken_at(taken_at) if taken else None
 
             if taken:
