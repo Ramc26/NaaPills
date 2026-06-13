@@ -1,56 +1,13 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "frontend/**",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/pilltrack",
-      "dest": "frontend/pilltrack.html"
-    },
-    {
-      "src": "/favicon.svg",
-      "dest": "frontend/favicon.svg"
-    },
-    {
-      "src": "/",
-      "dest": "frontend/index.html"
-    },
-    {
-      "src": "/css/(.*)",
-      "dest": "frontend/css/$1"
-    },
-    {
-      "src": "/js/(.*)",
-      "dest": "frontend/js/$1"
-    },
-    {
-      "src": "/images/(.*)",
-      "dest": "frontend/images/$1"
-    },
-    {
-      "src": "/templates/(.*)",
-      "dest": "frontend/templates/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "frontend/$1"
-    }
-  ],
-  "functions": {
-    "api/index.py": {
-      "maxDuration": 10
-    }
-  }
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index.py" },
+    { "source": "/pilltrack", "destination": "/frontend/pilltrack.html" },
+    { "source": "/favicon.svg", "destination": "/frontend/favicon.svg" },
+    { "source": "/", "destination": "/frontend/index.html" },
+    { "source": "/css/(.*)", "destination": "/frontend/css/$1" },
+    { "source": "/js/(.*)", "destination": "/frontend/js/$1" },
+    { "source": "/images/(.*)", "destination": "/frontend/images/$1" },
+    { "source": "/templates/(.*)", "destination": "/frontend/templates/$1" },
+    { "source": "/(.*)", "destination": "/frontend/$1" }
+  ]
 }
