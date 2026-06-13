@@ -79,16 +79,20 @@
   }
 
   function render(data) {
-    var summary = data.summary;
+    var summary = data.summary || {};
     var days = data.days || [];
 
-    document.getElementById("totalDays").textContent = summary.total_days;
-    document.getElementById("perfectDays").textContent = summary.perfect_days;
-    document.getElementById("windowMins").textContent = "\u00b1" + summary.on_time_window_minutes;
+    document.getElementById("totalDays").textContent = summary.total_days != null ? summary.total_days : 0;
+    document.getElementById("perfectDays").textContent = summary.perfect_days != null ? summary.perfect_days : 0;
+    document.getElementById("windowMins").textContent =
+      "\u00b1" + (summary.on_time_window_minutes != null ? summary.on_time_window_minutes : 15);
 
     if (summary.storage_note) {
       document.getElementById("storageNote").textContent = summary.storage_note;
     }
+
+    var main = document.getElementById("trackMain");
+    document.getElementById("loading").style.display = "none";
 
     if (days.length) {
       var today = days[0];
@@ -96,27 +100,33 @@
       document.getElementById("todayCount").textContent = today.taken + " / " + today.total;
       document.getElementById("todayOntime").textContent = today.on_time_count + " on time";
       setRing(today.percentage);
-    }
-
-    var main = document.getElementById("trackMain");
-    if (!days.length) {
-      main.innerHTML = '<p class="pt-loading">No tracking data yet.</p>';
+      main.innerHTML = days.map(function (d, i) { return renderDay(d, i === 0); }).join("");
       return;
     }
 
-    main.innerHTML = days.map(function (d, i) { return renderDay(d, i === 0); }).join("");
+    document.getElementById("todayCard").hidden = true;
+    var storageHint = summary.storage === "blob"
+      ? "No marks recorded yet today."
+      : "Tracking storage not connected — marks may not persist. Link Vercel Blob store.";
+    main.innerHTML = '<p class="pt-loading">' + esc(storageHint) + "</p>";
   }
 
   function load() {
-    document.getElementById("loading").style.display = "block";
+    var loading = document.getElementById("loading");
+    loading.style.display = "block";
+    loading.textContent = "Loading...";
+
     fetch("/api/pilltrack")
-      .then(function (r) { return r.json(); })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
       .then(function (data) {
-        document.getElementById("loading").style.display = "none";
         render(data);
       })
-      .catch(function () {
-        document.getElementById("loading").textContent = "Failed to load. Tap ↻ to retry.";
+      .catch(function (err) {
+        loading.textContent = "Failed to load. Tap ↻ to retry.";
+        console.error("pilltrack error:", err);
       });
   }
 

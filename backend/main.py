@@ -16,6 +16,8 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from backend.services import medicine_service, supplement_service, tracking_service
+from backend.services.blob_storage import read_tracking, storage_mode, storage_note, use_blob_storage
+from backend.services.data_loader import TRACKING_FILE
 
 app = FastAPI(
     title="NaaPills API",
@@ -72,6 +74,18 @@ def status_today():
 def pilltrack(days: int = 30):
     """Caregiver dashboard — daily pill intake with timestamps (not linked from main UI)."""
     return tracking_service.get_pilltrack_report(days=min(days, 90))
+
+
+@app.get("/api/health/storage")
+def health_storage():
+    """Debug: confirm tracking storage mode and whether blob has data."""
+    tracking = read_tracking(TRACKING_FILE)
+    return {
+        "mode": storage_mode(),
+        "blob_configured": use_blob_storage(),
+        "tracking_days": len(tracking),
+        "storage_note": storage_note(),
+    }
 
 
 class SupplementLogRequest(BaseModel):

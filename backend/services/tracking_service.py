@@ -159,6 +159,16 @@ def _dose_timing_info(medicine: dict[str, Any], taken_at: str | None) -> dict[st
     }
 
 
+def _pilltrack_summary(total_days: int = 0, perfect_days: int = 0) -> dict[str, Any]:
+    return {
+        "total_days": total_days,
+        "perfect_days": perfect_days,
+        "on_time_window_minutes": ON_TIME_WINDOW_MINUTES,
+        "storage": storage_mode(),
+        "storage_note": storage_note(),
+    }
+
+
 def get_pilltrack_report(days: int = 30) -> dict[str, Any]:
     """
     Caregiver dashboard data — daily breakdown with taken times and on-time status.
@@ -166,7 +176,7 @@ def get_pilltrack_report(days: int = 30) -> dict[str, Any]:
     """
     tracking = _load_tracking()
     if not tracking:
-        return {"days": [], "summary": {"total_days": 0, "perfect_days": 0}}
+        return {"days": [], "summary": _pilltrack_summary()}
 
     sorted_dates = sorted(tracking.keys(), reverse=True)[:days]
     report_days = []
@@ -271,13 +281,7 @@ def get_pilltrack_report(days: int = 30) -> dict[str, Any]:
 
     return {
         "days": report_days,
-        "summary": {
-            "total_days": len(report_days),
-            "perfect_days": perfect_days,
-            "on_time_window_minutes": ON_TIME_WINDOW_MINUTES,
-            "storage": storage_mode(),
-            "storage_note": storage_note(),
-        },
+        "summary": _pilltrack_summary(len(report_days), perfect_days),
     }
 
 
