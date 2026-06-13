@@ -1,0 +1,42 @@
+<!-- Home screen — take-now suggestions + period buttons -->
+<div ng-if="home.loading" class="loading-state">లోడ్ అవుతోంది...</div>
+
+<!-- Medicines due around the current time -->
+<section class="now-section" ng-if="!home.loading && home.nowMedicines.length > 0">
+  <h2 class="now-title">{{ home.nowTitle }}</h2>
+
+  <div class="now-card" ng-repeat="med in home.nowMedicines"
+       ng-class="{ 'now-card-missed': med.reminderStatus === 'missed' }">
+    <div class="now-card-body">
+      <div class="now-card-image img-tappable" ng-click="viewer.open(med.image, med.name)">
+        <img ng-src="{{ med.image }}" alt="{{ med.name }}"
+             onerror="this.onerror=null; this.src='/images/placeholder.svg';">
+      </div>
+      <div class="now-card-info">
+        <p class="now-card-name">{{ med.name }}</p>
+        <p class="now-card-meta">{{ med.time }} &middot; {{ med.dose }}</p>
+        <p class="now-card-food">{{ med.foodTelugu }}</p>
+        <p class="now-card-status" ng-if="med.reminderStatus === 'missed'">⚠️ మరచిపోయింది</p>
+      </div>
+    </div>
+    <button type="button" class="btn-take btn-take-pending" ng-click="home.markTaken(med)">
+      &#10003; తీసుకున్నాను
+    </button>
+  </div>
+</section>
+
+<!-- Period buttons -->
+<div ng-if="!home.loading" class="period-buttons">
+  <a ng-repeat="p in home.periods"
+     href="#!/period/{{ p.key }}"
+     class="btn-period btn-period-{{ p.key }}">
+    <span class="period-emoji">{{ p.emoji }}</span>
+    <span class="period-label">
+      {{ p.telugu }}
+      <span class="period-label-en">{{ p.english }}</span>
+    </span>
+    <span class="period-count" ng-if="home.counts[p.key]">
+      {{ home.counts[p.key] }}
+    </span>
+  </a>
+</div>

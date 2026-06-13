@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pill Track — NaaPills Caregiver</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/pilltrack.css">
+</head>
+<body>
+  <div class="track-app">
+    <header class="track-header">
+      <h1>Pill Track</h1>
+      <p class="track-subtitle">Nannagaru — daily medicine intake log</p>
+    </header>
+
+    <section class="track-summary" id="summary">
+      <div class="summary-card">
+        <span class="summary-value" id="totalDays">—</span>
+        <span class="summary-label">Days tracked</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-value" id="perfectDays">—</span>
+        <span class="summary-label">Perfect days</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-value" id="windowMins">±15</span>
+        <span class="summary-label">On-time window</span>
+      </div>
+    </section>
+
+    <main class="track-main" id="trackMain">
+      <p class="track-loading" id="loading">Loading tracking data...</p>
+    </main>
+  </div>
+
+  <script src="/js/pilltrack.js"></script>
+</body>
+</html>

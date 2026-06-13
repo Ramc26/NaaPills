@@ -1,0 +1,229 @@
+/* Pill Track — caregiver dashboard (hidden from main app) */
+
+:root {
+  --bg: #f4f6f8;
+  --card: #ffffff;
+  --text: #1a1a1a;
+  --muted: #666;
+  --green: #2d6a4f;
+  --green-bg: #e8f5ee;
+  --red: #c0392b;
+  --red-bg: #fdecea;
+  --amber: #b8860b;
+  --amber-bg: #fef9e7;
+  --border: #dde2e8;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.track-app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 3rem;
+}
+
+.track-header {
+  margin-bottom: 1.25rem;
+}
+
+.track-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.15rem;
+}
+
+.track-subtitle {
+  color: var(--muted);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.track-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.summary-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.summary-value {
+  display: block;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.summary-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.track-loading {
+  text-align: center;
+  color: var(--muted);
+  padding: 2rem;
+}
+
+/* Day block */
+.day-block {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  background: #eef1f5;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.day-date {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.day-stats {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.day-stats strong {
+  color: var(--text);
+}
+
+.day-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}
+
+.badge-perfect {
+  background: var(--green-bg);
+  color: var(--green);
+}
+
+.badge-partial {
+  background: var(--amber-bg);
+  color: var(--amber);
+}
+
+.badge-missed {
+  background: var(--red-bg);
+  color: var(--red);
+}
+
+/* Dose rows */
+.dose-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dose-table th,
+.dose-table td {
+  padding: 0.65rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #f0f2f5;
+  font-size: 0.875rem;
+}
+
+.dose-table th {
+  font-weight: 600;
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.dose-table tr:last-child td {
+  border-bottom: none;
+}
+
+.status-pill {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+}
+
+.status-taken {
+  background: var(--green-bg);
+  color: var(--green);
+}
+
+.status-missed {
+  background: var(--red-bg);
+  color: var(--red);
+}
+
+.timing-ok {
+  color: var(--green);
+  font-weight: 600;
+}
+
+.timing-late,
+.timing-early {
+  color: var(--amber);
+  font-weight: 600;
+}
+
+.timing-unknown {
+  color: var(--muted);
+  font-style: italic;
+}
+
+@media (max-width: 600px) {
+  .track-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .dose-table thead {
+    display: none;
+  }
+
+  .dose-table tr {
+    display: block;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f0f2f5;
+  }
+
+  .dose-table td {
+    display: block;
+    padding: 0.15rem 0;
+    border: none;
+  }
+
+  .dose-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.1rem;
+  }
+}

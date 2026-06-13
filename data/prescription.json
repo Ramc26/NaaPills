@@ -1,0 +1,151 @@
+{
+  "patient": {
+    "name": "Nannagaru",
+    "surgery": "Right Hip Total Hip Replacement (THR)",
+    "discharge_date": "2026-06-12"
+  },
+  "medications": [
+    {
+      "id": "ticobon_mr",
+      "name": "Ticobon-MR",
+      "generic_name": "Etoricoxib 60mg + Thiocolchicoside 4mg",
+      "dose": "1 Tablet",
+      "route": "Oral",
+      "food_instruction": "After Food",
+      "duration_days": 15,
+      "start_date": "2026-06-12",
+      "active": true,
+      "total_pills_required": 30,
+      "schedule": [
+        { "time": "10:00 AM", "period": "morning" },
+        { "time": "10:00 PM", "period": "night" }
+      ],
+      "image": "/images/ticobon-mr.jpg"
+    },
+    {
+      "id": "panhorst_dsr",
+      "name": "Panhorst DSR 40mg",
+      "generic_name": "Pantoprazole 40mg + Domperidone 30mg",
+      "dose": "1 Capsule",
+      "route": "Oral",
+      "food_instruction": "Before Food",
+      "duration_days": 15,
+      "start_date": "2026-06-12",
+      "active": true,
+      "total_pills_required": 15,
+      "schedule": [
+        {
+          "time": "07:30 AM",
+          "period": "morning",
+          "note": "30 minutes before breakfast"
+        }
+      ],
+      "image": "/images/panhorst-dsr.jpg"
+    },
+    {
+      "id": "dolo_650",
+      "name": "Dolo 650",
+      "generic_name": "Paracetamol 650mg",
+      "dose": "1 Tablet",
+      "route": "Oral",
+      "food_instruction": "After Food",
+      "duration_days": 15,
+      "start_date": "2026-06-12",
+      "active": true,
+      "total_pills_required": 45,
+      "schedule": [
+        { "time": "08:00 AM", "period": "morning" },
+        { "time": "02:00 PM", "period": "afternoon" },
+        { "time": "08:00 PM", "period": "evening" }
+      ],
+      "image": "/images/dolo-650.jpg"
+    },
+    {
+      "id": "zyapixa",
+      "name": "Zyapixa 2.5mg",
+      "generic_name": "Apixaban 2.5mg",
+      "dose": "1 Tablet",
+      "route": "Oral",
+      "food_instruction": "After Food",
+      "duration_days": 30,
+      "start_date": "2026-06-12",
+      "active": true,
+      "total_pills_required": 60,
+      "schedule": [
+        { "time": "09:00 AM", "period": "morning" },
+        { "time": "09:00 PM", "period": "bedtime" }
+      ],
+      "image": "/images/zyapixa.jpg"
+    },
+    {
+      "id": "steon_k2",
+      "name": "Steon K2",
+      "generic_name": "Calcitriol + Calcium + Vitamin K2-7",
+      "dose": "1 Tablet",
+      "route": "Oral",
+      "food_instruction": "After Food",
+      "duration_days": 60,
+      "start_date": "2026-06-12",
+      "active": true,
+      "total_pills_required": 120,
+      "schedule": [
+        { "time": "09:00 AM", "period": "morning" },
+        { "time": "09:00 PM", "period": "bedtime" }
+      ],
+      "image": "/images/steon-k2.jpg"
+    },
+    {
+      "id": "health_3r",
+      "name": "Health-3R Vanilla",
+      "generic_name": "High Protein Nutritional Supplement",
+      "dose": "2 tsp",
+      "route": "Oral",
+      "food_instruction": "After Food",
+      "duration_days": 60,
+      "start_date": "2026-06-12",
+      "active": true,
+      "total_servings_required": 60,
+      "schedule": [
+        {
+          "time": "11:00 AM",
+          "period": "morning",
+          "note": "Mix in warm water or milk"
+        }
+      ],
+      "image": "/images/health-3r.jpg"
+    },
+    {
+      "id": "pregcoba_nt",
+      "name": "Pregcoba-NT",
+      "generic_name": "Pregabalin + Nortriptyline + Methylcobalamin",
+      "dose": "1 Tablet",
+      "route": "Oral",
+      "food_instruction": "Bed Time",
+      "duration_days": 30,
+      "start_date": "2026-06-12",
+      "active": true,
+      "total_pills_required": 30,
+      "schedule": [
+        { "time": "09:00 PM", "period": "bedtime" }
+      ],
+      "image": "/images/pregcoba-nt.jpg"
+    },
+    {
+      "id": "build_joint",
+      "name": "Build Joint",
+      "generic_name": "",
+      "dose": "1 Tablet",
+      "route": "Oral",
+      "food_instruction": "After Food",
+      "duration_days": 60,
+      "start_date": "2026-06-12",
+      "active": true,
+      "total_pills_required": 120,
+      "schedule": [
+        { "time": "09:00 AM", "period": "morning" },
+        { "time": "09:00 PM", "period": "bedtime" }
+      ],
+      "image": "/images/build-joint.jpg"
+    }
+  ]
+}

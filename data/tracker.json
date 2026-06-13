@@ -1,0 +1,98 @@
+{
+    "summary": {
+      "total_medicines": 8,
+      "today_completion_percentage": 0,
+      "all_medicines_taken_today": false,
+      "last_updated": null
+    },
+    "medicines": {
+      "ticobon_mr": {
+        "days_completed": 0,
+        "days_remaining": 15,
+        "total_required": 30,
+        "taken_count": 0,
+        "remaining_count": 30,
+        "taken_today": false,
+        "completed": false
+      },
+      "panhorst_dsr": {
+        "days_completed": 0,
+        "days_remaining": 15,
+        "total_required": 15,
+        "taken_count": 0,
+        "remaining_count": 15,
+        "taken_today": false,
+        "completed": false
+      },
+      "dolo_650": {
+        "days_completed": 0,
+        "days_remaining": 15,
+        "total_required": 45,
+        "taken_count": 0,
+        "remaining_count": 45,
+        "taken_today": false,
+        "completed": false
+      },
+      "zyapixa": {
+        "days_completed": 0,
+        "days_remaining": 30,
+        "total_required": 60,
+        "taken_count": 0,
+        "remaining_count": 60,
+        "taken_today": false,
+        "completed": false
+      },
+      "steon_k2": {
+        "days_completed": 0,
+        "days_remaining": 60,
+        "total_required": 120,
+        "taken_count": 0,
+        "remaining_count": 120,
+        "taken_today": false,
+        "completed": false
+      },
+      "health_3r": {
+        "days_completed": 0,
+        "days_remaining": 60,
+        "total_required": 60,
+        "taken_count": 0,
+        "remaining_count": 60,
+        "taken_today": false,
+        "completed": false
+      },
+      "pregcoba_nt": {
+        "days_completed": 0,
+        "days_remaining": 30,
+        "total_required": 30,
+        "taken_count": 0,
+        "remaining_count": 30,
+        "taken_today": false,
+        "completed": false
+      },
+      "build_joint": {
+        "days_completed": 0,
+        "days_remaining": 60,
+        "total_required": 120,
+        "taken_count": 0,
+        "remaining_count": 120,
+        "taken_today": false,
+        "completed": false
+      }
+    },
+    "daily_log": {
+      "2026-06-12": {
+        "ticobon_mr": {
+          "10:00 AM": false,
+          "10:00 PM": false
+        },
+        "panhorst_dsr": {
+          "07:30 AM": false
+        },
+        "dolo_650": {
+          "08:00 AM": false,
+          "02:00 PM": false,
+          "08:00 PM": false
+        }
+      }
+    }
+  }

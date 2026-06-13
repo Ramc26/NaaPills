@@ -1,0 +1,56 @@
+<!-- Period medication screen -->
+<div class="period-header">
+  <a href="#!/" class="btn-back">&larr; వెనుకకు</a>
+  <h2 class="period-title">{{ period.emoji }} {{ period.title }}</h2>
+  <p class="period-time-hint">{{ period.subtitle }}</p>
+</div>
+
+<div ng-if="period.loading" class="loading-state">లోడ్ అవుతోంది...</div>
+
+<div ng-if="!period.loading && period.medicines.length === 0" class="empty-state">
+  <div class="empty-state-icon">&#10003;</div>
+  <p>ఈ సమయానికి మందులు లేవు.</p>
+</div>
+
+<div ng-if="!period.loading && period.medicines.length > 0" class="medicine-list">
+  <div class="card medicine-card"
+       ng-repeat="med in period.medicines"
+       ng-class="{ taken: med.taken }">
+
+    <div class="medicine-card-body">
+      <div class="medicine-image-wrap img-tappable" ng-click="viewer.open(med.image, med.name)">
+        <img class="medicine-image"
+             ng-src="{{ med.image }}"
+             alt="{{ med.name }}"
+             onerror="this.onerror=null; this.src='/images/placeholder.svg';">
+      </div>
+
+      <h3 class="medicine-name">{{ med.name }}</h3>
+
+      <div class="medicine-detail">
+        <span class="detail-label">మోతాదు:</span>
+        <span class="detail-value">{{ med.dose }}</span>
+      </div>
+
+      <div class="medicine-detail">
+        <span class="detail-label">ఆహారం:</span>
+        <span class="detail-value detail-value-telugu">{{ med.foodTelugu }}</span>
+      </div>
+
+      <div class="medicine-detail">
+        <span class="detail-label">సమయం:</span>
+        <span class="detail-value">{{ med.time }}</span>
+      </div>
+
+      <p class="medicine-notes" ng-if="med.notes">{{ med.notes }}</p>
+    </div>
+
+    <button type="button"
+            class="btn-take"
+            ng-class="med.taken ? 'btn-take-done' : 'btn-take-pending'"
+            ng-click="period.toggleTaken(med)">
+      <span ng-if="!med.taken">&#10003; తీసుకున్నాను</span>
+      <span ng-if="med.taken">&#10003; తీసుకున్నారు — మార్చటానికి నొక్కండి</span>
+    </button>
+  </div>
+</div>
