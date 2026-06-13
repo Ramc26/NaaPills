@@ -1,18 +1,1 @@
-{
-  "2026-06-12": {
-    "panhorst_dsr_morning": true,
-    "dolo_650_morning": true,
-    "zyapixa_morning": true,
-    "steon_k2_morning": true,
-    "build_joint_morning": true,
-    "ticobon_mr_morning": true,
-    "health_3r_morning": true,
-    "steon_k2_bedtime": false
-  },
-  "2026-06-13": {
-    "panhorst_dsr_morning": {
-      "taken": true,
-      "taken_at": "2026-06-13T09:48:32.453676+05:30"
-    }
-  }
-}
+{}

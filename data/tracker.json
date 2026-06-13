@@ -79,20 +79,5 @@
         "completed": false
       }
     },
-    "daily_log": {
-      "2026-06-12": {
-        "ticobon_mr": {
-          "10:00 AM": false,
-          "10:00 PM": false
-        },
-        "panhorst_dsr": {
-          "07:30 AM": false
-        },
-        "dolo_650": {
-          "08:00 AM": false,
-          "02:00 PM": false,
-          "08:00 PM": false
-        }
-      }
-    }
+    "daily_log": {}
   }

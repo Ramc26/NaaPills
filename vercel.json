@@ -24,6 +24,10 @@
       "dest": "frontend/favicon.svg"
     },
     {
+      "src": "/",
+      "dest": "frontend/index.html"
+    },
+    {
       "src": "/css/(.*)",
       "dest": "frontend/css/$1"
     },
@@ -43,5 +47,10 @@
       "src": "/(.*)",
       "dest": "frontend/$1"
     }
-  ]
+  ],
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 10
+    }
+  }
 }

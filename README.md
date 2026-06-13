@@ -78,6 +78,7 @@ The FastAPI app serves both the API (`/api/*`) and the static frontend.
 | GET    | `/api/medicines/{period}` | Doses for morning/afternoon/evening/bedtime |
 | GET    | `/api/today`              | Medicines grouped by period          |
 | GET    | `/api/status/today`       | Today's progress and dose status     |
+| GET    | `/api/pilltrack`          | Caregiver daily intake report        |
 | POST   | `/api/mark-taken`         | Mark a dose taken or undo            |
 
 **Mark taken example:**
@@ -90,16 +91,43 @@ curl -X POST http://localhost:8000/api/mark-taken \
 
 ## Deploy to Vercel
 
-1. Install the [Vercel CLI](https://vercel.com/docs/cli)
-2. From the project root:
+### 1. Push to GitHub
 
 ```bash
-vercel
+git add .
+git commit -m "Ready for deployment"
+git push origin main
 ```
 
-3. Vercel serves:
-   - **Frontend** as static files from `frontend/`
-   - **API** as serverless Python from `api/index.py`
+### 2. Deploy
+
+**Option A — Vercel Dashboard:** Import the repo at [vercel.com/new](https://vercel.com/new). No extra config needed.
+
+**Option B — CLI:**
+
+```bash
+npm i -g vercel   # if not installed
+vercel --prod
+```
+
+### 3. What gets deployed
+
+| URL | Purpose |
+|-----|---------|
+| `/` | Main app for Nannagaru |
+| `/pilltrack` | Caregiver dashboard (not linked from main app) |
+| `/api/*` | FastAPI backend |
+
+### 4. After deploy
+
+- Open the main URL on Nannagaru's phone and **Add to Home Screen**
+- Bookmark `/pilltrack` on your phone to monitor daily intake
+
+### Notes
+
+- Tracking data is stored in JSON (`backend/data/tracking.json` locally, `/tmp` on Vercel)
+- On Vercel, tracking persists while the serverless function stays warm; for long-term persistence consider upgrading to Vercel KV or hosting the API on a server with a disk
+- Medicine images are in `frontend/images/` — case-sensitive on Vercel (Linux)
 
 ## Medicine Schedule (from discharge prescription)
 
@@ -118,16 +146,16 @@ vercel
 
 ## Adding Medicine Photos
 
-Place JPG/PNG images in `frontend/images/` matching the filenames in `medicines.json`:
+Place images in `frontend/images/` (current filenames):
 
-- `panhorst-dsr.jpg`
-- `dolo-650.jpg`
-- `zyapixa.jpg`
-- `steon-k2.jpg`
-- `build-joint.jpg`
+- `panthorst.jpg`
+- `dolo650.png`
+- `zyapixa.PNG`
+- `steonk2.PNG`
+- `build-joint.PNG`
 - `ticobon-mr.jpg`
-- `health-3r.jpg`
-- `pregcoba-nt.jpg`
+- `pregcoba.PNG`
+- `placeholder.svg` (fallback for Health-3R)
 
 A pill placeholder SVG is included (`placeholder.svg`) and shown automatically when an image is missing.
 
