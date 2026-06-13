@@ -118,15 +118,29 @@ vercel --prod
 | `/pilltrack` | Caregiver dashboard (not linked from main app) |
 | `/api/*` | FastAPI backend |
 
-### 4. After deploy
+### 4. Enable permanent tracking (free — one-time setup)
+
+Tracking data must persist in the cloud. On the **Hobby (free) plan**, use Vercel Blob:
+
+1. Open your project on [vercel.com](https://vercel.com)
+2. Go to **Storage** tab → **Create Database** → choose **Blob**
+3. Name it `naapills-tracking` → **Connect to Project** → select `naapills`
+4. Vercel auto-adds `BLOB_READ_WRITE_TOKEN` to your project
+5. **Redeploy** (Deployments → ⋯ → Redeploy)
+
+That's it. Tracking JSON is stored permanently at `naapills/tracking.json` in Blob.
+Free Hobby limits: 1 GB storage, 10k operations/month — more than enough for this app.
+
+### 5. After deploy
 
 - Open the main URL on Nannagaru's phone and **Add to Home Screen**
 - Bookmark `/pilltrack` on your phone to monitor daily intake
 
 ### Notes
 
-- Tracking data is stored in JSON (`backend/data/tracking.json` locally, `/tmp` on Vercel)
-- On Vercel, tracking persists while the serverless function stays warm; for long-term persistence consider upgrading to Vercel KV or hosting the API on a server with a disk
+- **With Blob store:** tracking persists permanently in the cloud
+- **Without Blob store:** tracking uses temporary `/tmp` on Vercel and may reset
+- Tracking is **not** stored on Nannagaru's phone — it's server-side only
 - Medicine images are in `frontend/images/` — case-sensitive on Vercel (Linux)
 
 ## Medicine Schedule (from discharge prescription)

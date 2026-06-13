@@ -10,7 +10,7 @@
     "notes": "30 minutes before breakfast",
     "duration_days": 15,
     "start_date": "2026-06-12",
-    "image": "/images/panthorst.jpg"
+    "image": "/images/panthorst-sm.jpg"
   },
   {
     "id": "dolo_650_morning",
@@ -36,7 +36,7 @@
     "notes": "Blood thinner — take regularly",
     "duration_days": 30,
     "start_date": "2026-06-12",
-    "image": "/images/zyapixa.PNG"
+    "image": "/images/zyapixa.jpg"
   },
   {
     "id": "steon_k2_morning",
@@ -49,7 +49,7 @@
     "notes": "Calcium & Vitamin K2 supplement",
     "duration_days": 60,
     "start_date": "2026-06-12",
-    "image": "/images/steonk2.PNG"
+    "image": "/images/steonk2.jpg"
   },
   {
     "id": "build_joint_morning",
@@ -62,7 +62,7 @@
     "notes": "Joint support supplement",
     "duration_days": 60,
     "start_date": "2026-06-12",
-    "image": "/images/build-joint.PNG"
+    "image": "/images/build-joint.jpg"
   },
   {
     "id": "ticobon_mr_morning",
@@ -76,19 +76,6 @@
     "duration_days": 15,
     "start_date": "2026-06-12",
     "image": "/images/ticobon-mr.jpg"
-  },
-  {
-    "id": "health_3r_morning",
-    "medicine_id": "health_3r",
-    "name": "Health-3R Vanilla",
-    "time": "11:00 AM",
-    "period": "morning",
-    "dose": "2 tsp",
-    "food": "After Food",
-    "notes": "Mix in warm water or milk",
-    "duration_days": 60,
-    "start_date": "2026-06-12",
-    "image": "/images/placeholder.svg"
   },
   {
     "id": "dolo_650_afternoon",
@@ -127,7 +114,7 @@
     "notes": "Take before sleeping",
     "duration_days": 30,
     "start_date": "2026-06-12",
-    "image": "/images/pregcoba.PNG"
+    "image": "/images/pregcoba.jpg"
   },
   {
     "id": "zyapixa_bedtime",
@@ -140,7 +127,7 @@
     "notes": "Blood thinner — take regularly",
     "duration_days": 30,
     "start_date": "2026-06-12",
-    "image": "/images/zyapixa.PNG"
+    "image": "/images/zyapixa.jpg"
   },
   {
     "id": "steon_k2_bedtime",
@@ -153,7 +140,7 @@
     "notes": "Calcium & Vitamin K2 supplement",
     "duration_days": 60,
     "start_date": "2026-06-12",
-    "image": "/images/steonk2.PNG"
+    "image": "/images/steonk2.jpg"
   },
   {
     "id": "build_joint_bedtime",
@@ -166,7 +153,7 @@
     "notes": "Joint support supplement",
     "duration_days": 60,
     "start_date": "2026-06-12",
-    "image": "/images/build-joint.PNG"
+    "image": "/images/build-joint.jpg"
   },
   {
     "id": "ticobon_mr_bedtime",

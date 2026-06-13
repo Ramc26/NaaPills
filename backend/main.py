@@ -15,7 +15,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from backend.services import medicine_service, tracking_service
+from backend.services import medicine_service, supplement_service, tracking_service
 
 app = FastAPI(
     title="NaaPills API",
@@ -72,6 +72,43 @@ def status_today():
 def pilltrack(days: int = 30):
     """Caregiver dashboard — daily pill intake with timestamps (not linked from main UI)."""
     return tracking_service.get_pilltrack_report(days=min(days, 90))
+
+
+class SupplementLogRequest(BaseModel):
+    """Log a flexible supplement serving."""
+
+    when: str | None = Field(
+        default=None,
+        description="breakfast, evening, or bedtime — auto-detected if omitted",
+    )
+    date: str | None = Field(default=None, description="YYYY-MM-DD, defaults to today")
+
+
+@app.get("/api/supplements/today")
+def supplements_today():
+    """Return today's flexible supplements (e.g. Health-3R protein)."""
+    return supplement_service.get_supplements_today()
+
+
+@app.post("/api/supplements/{supplement_id}/log")
+def log_supplement(supplement_id: str, body: SupplementLogRequest):
+    """Log a supplement serving with when-context."""
+    on_date = date.fromisoformat(body.date) if body.date else None
+    try:
+        supplements = supplement_service.log_supplement(supplement_id, body.when, on_date)
+        progress = tracking_service.get_today_progress(on_date)
+        return {"supplements": supplements, "progress": progress}
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.post("/api/supplements/{supplement_id}/undo")
+def undo_supplement(supplement_id: str, body: SupplementLogRequest):
+    """Undo today's supplement log."""
+    on_date = date.fromisoformat(body.date) if body.date else None
+    supplements = supplement_service.undo_supplement(supplement_id, on_date)
+    progress = tracking_service.get_today_progress(on_date)
+    return {"supplements": supplements, "progress": progress}
 
 
 @app.post("/api/mark-taken")

@@ -1,229 +1,318 @@
-/* Pill Track — caregiver dashboard (hidden from main app) */
+/* Pill Track — caregiver dashboard */
 
 :root {
-  --bg: #f4f6f8;
-  --card: #ffffff;
-  --text: #1a1a1a;
-  --muted: #666;
-  --green: #2d6a4f;
-  --green-bg: #e8f5ee;
-  --red: #c0392b;
-  --red-bg: #fdecea;
-  --amber: #b8860b;
-  --amber-bg: #fef9e7;
-  --border: #dde2e8;
+  --bg: #0f1419;
+  --surface: #1a2332;
+  --surface2: #243044;
+  --text: #f0f4f8;
+  --muted: #8b9cb3;
+  --green: #3dd68c;
+  --green-dim: rgba(61, 214, 140, 0.15);
+  --red: #ff6b6b;
+  --red-dim: rgba(255, 107, 107, 0.15);
+  --amber: #ffc857;
+  --amber-dim: rgba(255, 200, 87, 0.15);
+  --border: #2d3a4f;
+  --radius: 16px;
 }
 
-* { box-sizing: border-box; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  margin: 0;
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: "DM Sans", system-ui, sans-serif;
   background: var(--bg);
   color: var(--text);
   font-size: 15px;
   line-height: 1.5;
+  min-height: 100vh;
 }
 
-.track-app {
-  max-width: 900px;
+.pt-app {
+  max-width: 640px;
   margin: 0 auto;
-  padding: 1.25rem 1rem 3rem;
+  padding: 1rem 1rem 2rem;
 }
 
-.track-header {
+/* Header */
+.pt-header { margin-bottom: 1.25rem; }
+
+.pt-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.pt-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.pt-sub {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-top: 0.15rem;
+}
+
+.pt-refresh {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.pt-refresh:active { background: var(--surface2); }
+
+/* Today hero card */
+.pt-today {
+  background: linear-gradient(135deg, #1e3a2f 0%, var(--surface) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.pt-today-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--green);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.pt-today-row {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.pt-ring-wrap {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+}
+
+.pt-ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.pt-ring-bg {
+  fill: none;
+  stroke: var(--surface2);
+  stroke-width: 10;
+}
+
+.pt-ring-fill {
+  fill: none;
+  stroke: var(--green);
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 327;
+  stroke-dashoffset: 327;
+  transition: stroke-dashoffset 0.6s ease;
+}
+
+.pt-ring-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.pt-today-count {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.pt-today-sub {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.pt-today-ontime {
+  color: var(--amber);
+  font-size: 0.85rem;
+  margin-top: 0.35rem;
+  font-weight: 500;
+}
+
+/* Stats row */
+.pt-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
   margin-bottom: 1.25rem;
 }
 
-.track-header h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin: 0 0 0.15rem;
-}
-
-.track-subtitle {
-  color: var(--muted);
-  margin: 0;
-  font-size: 0.95rem;
-}
-
-.track-summary {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-}
-
-.summary-card {
-  background: var(--card);
+.pt-stat {
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 1rem;
+  padding: 0.85rem 0.5rem;
   text-align: center;
 }
 
-.summary-value {
+.pt-stat-num {
   display: block;
-  font-size: 1.75rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: var(--green);
 }
 
-.summary-label {
-  font-size: 0.8rem;
+.pt-stat-lbl {
+  font-size: 0.7rem;
   color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.track-loading {
-  text-align: center;
-  color: var(--muted);
-  padding: 2rem;
-}
-
-/* Day block */
-.day-block {
-  background: var(--card);
+/* Day cards */
+.pt-day {
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  margin-bottom: 1rem;
+  border-radius: var(--radius);
+  margin-bottom: 0.85rem;
   overflow: hidden;
 }
 
-.day-header {
+.pt-day-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0.85rem 1rem;
-  background: #eef1f5;
   border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
-.day-date {
+.pt-day-date {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.pt-day-meta {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.pt-day-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.badge-ok { background: var(--green-dim); color: var(--green); }
+.badge-warn { background: var(--amber-dim); color: var(--amber); }
+.badge-bad { background: var(--red-dim); color: var(--red); }
+
+/* Dose timeline */
+.pt-doses { padding: 0.5rem 0; }
+
+.pt-dose {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.pt-dose:last-child { border-bottom: none; }
+
+.pt-dose-time {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.pt-dose-info { min-width: 0; }
+
+.pt-dose-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pt-dose-period {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-transform: capitalize;
+}
+
+.pt-dose-marked {
+  font-size: 0.75rem;
+  margin-top: 0.15rem;
+}
+
+.mark-ok { color: var(--green); }
+.mark-late { color: var(--amber); }
+.mark-miss { color: var(--red); }
+.mark-unknown { color: var(--muted); font-style: italic; }
+
+.pt-dose-status {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
   font-weight: 700;
-  font-size: 1rem;
+  flex-shrink: 0;
 }
 
-.day-stats {
-  font-size: 0.85rem;
+.status-ok { background: var(--green-dim); color: var(--green); }
+.status-miss { background: var(--red-dim); color: var(--red); }
+
+.pt-loading {
+  text-align: center;
   color: var(--muted);
+  padding: 3rem 1rem;
 }
 
-.day-stats strong {
-  color: var(--text);
+/* Footer storage note */
+.pt-footer {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
 }
 
-.day-badge {
-  font-size: 0.75rem;
+.pt-storage-title {
+  font-size: 0.8rem;
   font-weight: 600;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-}
-
-.badge-perfect {
-  background: var(--green-bg);
-  color: var(--green);
-}
-
-.badge-partial {
-  background: var(--amber-bg);
   color: var(--amber);
+  margin-bottom: 0.35rem;
 }
 
-.badge-missed {
-  background: var(--red-bg);
-  color: var(--red);
-}
-
-/* Dose rows */
-.dose-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.dose-table th,
-.dose-table td {
-  padding: 0.65rem 1rem;
-  text-align: left;
-  border-bottom: 1px solid #f0f2f5;
-  font-size: 0.875rem;
-}
-
-.dose-table th {
-  font-weight: 600;
+.pt-storage-text {
+  font-size: 0.8rem;
   color: var(--muted);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  line-height: 1.55;
 }
 
-.dose-table tr:last-child td {
-  border-bottom: none;
-}
+.pt-storage-text strong { color: var(--text); }
 
-.status-pill {
-  display: inline-block;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.15rem 0.5rem;
-  border-radius: 999px;
-}
-
-.status-taken {
-  background: var(--green-bg);
-  color: var(--green);
-}
-
-.status-missed {
-  background: var(--red-bg);
-  color: var(--red);
-}
-
-.timing-ok {
-  color: var(--green);
-  font-weight: 600;
-}
-
-.timing-late,
-.timing-early {
-  color: var(--amber);
-  font-weight: 600;
-}
-
-.timing-unknown {
-  color: var(--muted);
-  font-style: italic;
-}
-
-@media (max-width: 600px) {
-  .track-summary {
-    grid-template-columns: 1fr;
-  }
-
-  .dose-table thead {
-    display: none;
-  }
-
-  .dose-table tr {
-    display: block;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #f0f2f5;
-  }
-
-  .dose-table td {
-    display: block;
-    padding: 0.15rem 0;
-    border: none;
-  }
-
-  .dose-table td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: var(--muted);
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 0.1rem;
+@media (max-width: 400px) {
+  .pt-dose {
+    grid-template-columns: 48px 1fr auto;
+    gap: 0.5rem;
   }
 }

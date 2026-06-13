@@ -6,4 +6,6 @@ __pycache__
 .env
 .env.*
 .DS_Store
-data/tracker.json
+frontend/images/*.PNG
+frontend/images/panthorst.jpg
+frontend/images/ticobon-mr.png

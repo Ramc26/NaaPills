@@ -3,6 +3,8 @@
     { "source": "/api/(.*)", "destination": "/api/index.py" },
     { "source": "/pilltrack", "destination": "/frontend/pilltrack.html" },
     { "source": "/favicon.svg", "destination": "/frontend/favicon.svg" },
+    { "source": "/manifest.json", "destination": "/frontend/manifest.json" },
+    { "source": "/icons/(.*)", "destination": "/frontend/icons/$1" },
     { "source": "/", "destination": "/frontend/index.html" },
     { "source": "/css/(.*)", "destination": "/frontend/css/$1" },
     { "source": "/js/(.*)", "destination": "/frontend/js/$1" },

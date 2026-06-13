@@ -3,39 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pill Track — NaaPills Caregiver</title>
+  <title>Pill Track — NaaPills</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#4A7C59">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/pilltrack.css">
 </head>
 <body>
-  <div class="track-app">
-    <header class="track-header">
-      <h1>Pill Track</h1>
-      <p class="track-subtitle">Nannagaru — daily medicine intake log</p>
+  <div class="pt-app">
+    <header class="pt-header">
+      <div class="pt-header-top">
+        <div>
+          <h1 class="pt-title">Pill Track</h1>
+          <p class="pt-sub">Nannagaru · Caregiver Dashboard</p>
+        </div>
+        <button type="button" class="pt-refresh" id="btnRefresh" title="Refresh">↻</button>
+      </div>
     </header>
 
-    <section class="track-summary" id="summary">
-      <div class="summary-card">
-        <span class="summary-value" id="totalDays">—</span>
-        <span class="summary-label">Days tracked</span>
-      </div>
-      <div class="summary-card">
-        <span class="summary-value" id="perfectDays">—</span>
-        <span class="summary-label">Perfect days</span>
-      </div>
-      <div class="summary-card">
-        <span class="summary-value" id="windowMins">±15</span>
-        <span class="summary-label">On-time window</span>
+    <section class="pt-today" id="todayCard" hidden>
+      <p class="pt-today-label">Today</p>
+      <div class="pt-today-row">
+        <div class="pt-ring-wrap">
+          <svg class="pt-ring" viewBox="0 0 120 120">
+            <circle class="pt-ring-bg" cx="60" cy="60" r="52"/>
+            <circle class="pt-ring-fill" id="ringFill" cx="60" cy="60" r="52"/>
+          </svg>
+          <span class="pt-ring-text" id="ringPct">0%</span>
+        </div>
+        <div class="pt-today-stats">
+          <p class="pt-today-count" id="todayCount">0 / 14</p>
+          <p class="pt-today-sub" id="todaySub">medicines taken</p>
+          <p class="pt-today-ontime" id="todayOntime">0 on time</p>
+        </div>
       </div>
     </section>
 
-    <main class="track-main" id="trackMain">
-      <p class="track-loading" id="loading">Loading tracking data...</p>
-    </main>
-  </div>
+    <section class="pt-stats" id="summary">
+      <div class="pt-stat"><span class="pt-stat-num" id="totalDays">—</span><span class="pt-stat-lbl">Days</span></div>
+      <div class="pt-stat"><span class="pt-stat-num" id="perfectDays">—</span><span class="pt-stat-lbl">Perfect</span></div>
+      <div class="pt-stat"><span class="pt-stat-num" id="windowMins">±15</span><span class="pt-stat-lbl">Window</span></div>
+    </section>
 
+    <main class="pt-main" id="trackMain">
+      <p class="pt-loading" id="loading">Loading...</p>
+    </main>
+
+    <footer class="pt-footer">
+      <p class="pt-storage-title">Where is data stored?</p>
+      <p class="pt-storage-text" id="storageNote">
+        Connect a <strong>Vercel Blob store</strong> for permanent cloud storage.
+        Data is not saved on Nannagaru's phone.
+      </p>
+    </footer>
+  </div>
   <script src="/js/pilltrack.js"></script>
 </body>
 </html>

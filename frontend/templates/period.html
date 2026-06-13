@@ -15,13 +15,14 @@
 <div ng-if="!period.loading && period.medicines.length > 0" class="medicine-list">
   <div class="card medicine-card"
        ng-repeat="med in period.medicines"
-       ng-class="{ taken: med.taken }">
+       ng-class="[med.colorClass, { taken: med.taken }]">
 
     <div class="medicine-card-body">
       <div class="medicine-image-wrap img-tappable" ng-click="viewer.open(med.image, med.name)">
         <img class="medicine-image"
              ng-src="{{ med.image }}"
              alt="{{ med.name }}"
+             loading="lazy" decoding="async" width="200" height="150"
              onerror="this.onerror=null; this.src='/images/placeholder.svg';">
       </div>
 
@@ -47,7 +48,11 @@
 
     <button type="button"
             class="btn-take"
-            ng-class="med.taken ? 'btn-take-done' : 'btn-take-pending'"
+            ng-class="{
+              'btn-take-done': med.taken,
+              'btn-take-pending': !med.taken,
+              'btn-take-saving': med._saving
+            }"
             ng-click="period.toggleTaken(med)">
       <span ng-if="!med.taken">&#10003; తీసుకున్నాను</span>
       <span ng-if="med.taken">&#10003; తీసుకున్నారు — మార్చటానికి నొక్కండి</span>

@@ -1,93 +1,125 @@
 /**
- * Pill Track — caregiver dashboard (standalone, not linked from main app)
+ * Pill Track — caregiver dashboard
  */
 (function () {
   "use strict";
 
-  var main = document.getElementById("trackMain");
-  var loading = document.getElementById("loading");
+  var RING_C = 2 * Math.PI * 52; // ~327
 
-  function esc(str) {
+  function esc(s) {
     var d = document.createElement("div");
-    d.textContent = str || "";
+    d.textContent = s || "";
     return d.innerHTML;
   }
 
-  function timingClass(dose) {
-    if (!dose.taken) return "";
-    if (dose.on_time === true) return "timing-ok";
-    if (dose.on_time === false) return dose.minutes_delta > 0 ? "timing-late" : "timing-early";
-    return "timing-unknown";
+  function setRing(pct) {
+    var fill = document.getElementById("ringFill");
+    var text = document.getElementById("ringPct");
+    if (!fill) return;
+    var offset = RING_C - (RING_C * pct / 100);
+    fill.style.strokeDashoffset = offset;
+    text.textContent = pct + "%";
   }
 
-  function timingText(dose) {
-    if (!dose.taken) return "—";
+  function markedClass(dose) {
+    if (!dose.taken) return "mark-miss";
+    if (dose.on_time === true) return "mark-ok";
+    if (dose.on_time === false) return "mark-late";
+    return "mark-unknown";
+  }
+
+  function markedText(dose) {
+    if (!dose.taken) return "Not taken";
+    if (dose.period === "flexible" && dose.when_telugu) {
+      var t = dose.when_telugu;
+      if (dose.taken_at_display) t += " · " + dose.taken_at_display;
+      return t;
+    }
     if (dose.taken_at_display) {
-      var label = dose.minutes_delta_label ? " (" + dose.minutes_delta_label + ")" : "";
-      return dose.taken_at_display + label;
+      return dose.taken_at_display + (dose.minutes_delta_label ? " · " + dose.minutes_delta_label : "");
     }
     return "Taken (time not recorded)";
   }
 
   function dayBadge(day) {
-    if (day.all_taken) return '<span class="day-badge badge-perfect">All taken</span>';
-    if (day.taken === 0) return '<span class="day-badge badge-missed">None taken</span>';
-    return '<span class="day-badge badge-partial">' + day.taken + "/" + day.total + " taken</span>";
+    if (day.all_taken) return '<span class="pt-day-badge badge-ok">All done</span>';
+    if (day.taken === 0) return '<span class="pt-day-badge badge-bad">None taken</span>';
+    return '<span class="pt-day-badge badge-warn">' + day.taken + "/" + day.total + "</span>";
   }
 
-  function renderDay(day) {
-    var rows = day.doses.map(function (d) {
-      var status = d.taken
-        ? '<span class="status-pill status-taken">Taken</span>'
-        : '<span class="status-pill status-missed">Missed</span>';
-
-      return (
-        "<tr>" +
-        '<td data-label="Medicine">' + esc(d.name) + "</td>" +
-        '<td data-label="Scheduled">' + esc(d.scheduled_time) + "</td>" +
-        '<td data-label="Period">' + esc(d.period) + "</td>" +
-        '<td data-label="Status">' + status + "</td>" +
-        '<td data-label="Marked at" class="' + timingClass(d) + '">' + esc(timingText(d)) + "</td>" +
-        "</tr>"
-      );
-    }).join("");
+  function renderDose(d) {
+    var icon = d.taken ? "✓" : "✗";
+    var statusCls = d.taken ? "status-ok" : "status-miss";
+    var timeParts = (d.scheduled_time || "").split(" ");
 
     return (
-      '<section class="day-block">' +
-      '<div class="day-header">' +
-      "<div>" +
-      '<div class="day-date">' + esc(day.date_display) + "</div>" +
-      '<div class="day-stats"><strong>' + day.percentage + "%</strong> complete · " +
-      day.on_time_count + " on time</div>" +
+      '<div class="pt-dose">' +
+      '<div class="pt-dose-time">' + esc(timeParts[0] || "") + "<br>" + esc(timeParts[1] || "") + "</div>" +
+      '<div class="pt-dose-info">' +
+      '<div class="pt-dose-name">' + esc(d.name) + "</div>" +
+      '<div class="pt-dose-period">' + esc(d.period) + " · " + esc(d.dose) + "</div>" +
+      '<div class="pt-dose-marked ' + markedClass(d) + '">' + esc(markedText(d)) + "</div>" +
       "</div>" +
-      dayBadge(day) +
-      "</div>" +
-      '<table class="dose-table">' +
-      "<thead><tr>" +
-      "<th>Medicine</th><th>Scheduled</th><th>Period</th><th>Status</th><th>Marked at</th>" +
-      "</tr></thead>" +
-      "<tbody>" + rows + "</tbody>" +
-      "</table></section>"
+      '<div class="pt-dose-status ' + statusCls + '">' + icon + "</div>" +
+      "</div>"
     );
   }
 
-  fetch("/api/pilltrack")
-    .then(function (r) { return r.json(); })
-    .then(function (data) {
-      loading.style.display = "none";
-      document.getElementById("totalDays").textContent = data.summary.total_days;
-      document.getElementById("perfectDays").textContent = data.summary.perfect_days;
-      document.getElementById("windowMins").textContent =
-        "\u00b1" + data.summary.on_time_window_minutes + " min";
+  function renderDay(day, isToday) {
+    return (
+      '<section class="pt-day' + (isToday ? " pt-day-today" : "") + '">' +
+      '<div class="pt-day-head">' +
+      "<div><div class=\"pt-day-date\">" + esc(day.date_display) + "</div>" +
+      '<div class="pt-day-meta">' + day.percentage + "% · " + day.on_time_count + " on time</div></div>" +
+      dayBadge(day) +
+      "</div>" +
+      '<div class="pt-doses">' + day.doses.map(renderDose).join("") + "</div>" +
+      "</section>"
+    );
+  }
 
-      if (!data.days.length) {
-        main.innerHTML = '<p class="track-loading">No tracking data yet.</p>';
-        return;
-      }
+  function render(data) {
+    var summary = data.summary;
+    var days = data.days || [];
 
-      main.innerHTML = data.days.map(renderDay).join("");
-    })
-    .catch(function () {
-      loading.textContent = "Failed to load tracking data.";
-    });
+    document.getElementById("totalDays").textContent = summary.total_days;
+    document.getElementById("perfectDays").textContent = summary.perfect_days;
+    document.getElementById("windowMins").textContent = "\u00b1" + summary.on_time_window_minutes;
+
+    if (summary.storage_note) {
+      document.getElementById("storageNote").textContent = summary.storage_note;
+    }
+
+    if (days.length) {
+      var today = days[0];
+      document.getElementById("todayCard").hidden = false;
+      document.getElementById("todayCount").textContent = today.taken + " / " + today.total;
+      document.getElementById("todayOntime").textContent = today.on_time_count + " on time";
+      setRing(today.percentage);
+    }
+
+    var main = document.getElementById("trackMain");
+    if (!days.length) {
+      main.innerHTML = '<p class="pt-loading">No tracking data yet.</p>';
+      return;
+    }
+
+    main.innerHTML = days.map(function (d, i) { return renderDay(d, i === 0); }).join("");
+  }
+
+  function load() {
+    document.getElementById("loading").style.display = "block";
+    fetch("/api/pilltrack")
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        document.getElementById("loading").style.display = "none";
+        render(data);
+      })
+      .catch(function () {
+        document.getElementById("loading").textContent = "Failed to load. Tap ↻ to retry.";
+      });
+  }
+
+  document.getElementById("btnRefresh").addEventListener("click", load);
+  load();
 })();

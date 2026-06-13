@@ -69,6 +69,7 @@
   function decorate(med) {
     med.foodTelugu = teluguFood(med);
     med.minutes = timeToMinutes(med.time);
+    med.colorClass = "med-" + (med.medicine_id || "default");
     return med;
   }
 
@@ -169,6 +170,18 @@
         taken: taken !== false,
       });
     };
+
+    this.getSupplementsToday = function () {
+      return $http.get(base + "/supplements/today");
+    };
+
+    this.logSupplement = function (supplementId, when) {
+      return $http.post(base + "/supplements/" + supplementId + "/log", { when: when || null });
+    };
+
+    this.undoSupplement = function (supplementId) {
+      return $http.post(base + "/supplements/" + supplementId + "/undo", {});
+    };
   }]);
 
   /* ── Main Controller (header clock + progress) ─────────────── */
@@ -208,7 +221,10 @@
       }
 
       loadProgress();
-      $rootScope.$on("doseUpdated", loadProgress);
+      $rootScope.$on("doseUpdated", function (e, progress) {
+        if (progress) vm.progress = progress;
+        else loadProgress();
+      });
     },
   ]);
 
@@ -285,9 +301,23 @@
         return result;
       }
 
+      vm.supplement = null;
+      vm.showWhenPicker = false;
+
+      function inferWhen() {
+        var h = new Date().getHours();
+        if (h < 14) return { id: "breakfast", telugu: "ఫలహారం తరువాత" };
+        if (h < 20) return { id: "evening", telugu: "సాయంత్రం" };
+        return { id: "bedtime", telugu: "నిద్రకు ముందు" };
+      }
+
+      vm.suggestedWhen = inferWhen();
+
       function load() {
         MedicineApi.getTodayStatus().then(function (response) {
           var doses = (response.data.doses || []).map(decorate);
+          var supplements = response.data.supplements || [];
+          vm.supplement = supplements.length ? supplements[0] : null;
 
           vm.periods.forEach(function (p) {
             vm.counts[p.key] = doses.filter(function (d) { return d.period === p.key; }).length;
@@ -300,16 +330,67 @@
         });
       }
 
+      vm.logSupplementQuick = function () {
+        if (!vm.supplement || vm.supplement._saving) return;
+        vm.supplement._saving = true;
+        var when = inferWhen().id;
+        MedicineApi.logSupplement(vm.supplement.id, when).then(function (resp) {
+          vm.supplement = resp.data.supplements[0];
+          vm.supplement._saving = false;
+          vm.showWhenPicker = false;
+          $rootScope.$broadcast("doseUpdated", resp.data.progress);
+        }).catch(function () {
+          vm.supplement._saving = false;
+        });
+      };
+
+      vm.logSupplementWhen = function (whenId) {
+        if (!vm.supplement || vm.supplement._saving) return;
+        vm.supplement._saving = true;
+        MedicineApi.logSupplement(vm.supplement.id, whenId).then(function (resp) {
+          vm.supplement = resp.data.supplements[0];
+          vm.supplement._saving = false;
+          vm.showWhenPicker = false;
+          $rootScope.$broadcast("doseUpdated", resp.data.progress);
+        }).catch(function () {
+          vm.supplement._saving = false;
+        });
+      };
+
+      vm.undoSupplement = function () {
+        if (!vm.supplement || vm.supplement._saving) return;
+        vm.supplement._saving = true;
+        MedicineApi.undoSupplement(vm.supplement.id).then(function (resp) {
+          vm.supplement = resp.data.supplements[0];
+          vm.supplement._saving = false;
+          $rootScope.$broadcast("doseUpdated", resp.data.progress);
+        }).catch(function () {
+          vm.supplement._saving = false;
+        });
+      };
+
+      vm.toggleWhenPicker = function () {
+        vm.showWhenPicker = !vm.showWhenPicker;
+      };
+
       vm.markTaken = function (medicine) {
-        MedicineApi.markTaken(medicine.id, true).then(function () {
-          medicine.taken = true;
-          $rootScope.$broadcast("doseUpdated");
-          load();
+        if (medicine._saving) return;
+        medicine._saving = true;
+        medicine.taken = true;
+
+        MedicineApi.markTaken(medicine.id, true).then(function (resp) {
+          medicine._saving = false;
+          vm.nowMedicines = vm.nowMedicines.filter(function (m) {
+            return m.id !== medicine.id;
+          });
+          $rootScope.$broadcast("doseUpdated", resp.data.progress);
+        }).catch(function () {
+          medicine.taken = false;
+          medicine._saving = false;
         });
       };
 
       load();
-      $rootScope.$on("doseUpdated", load);
 
       // Refresh every minute so missed/upcoming list stays current
       $interval(load, 60000);
@@ -352,10 +433,17 @@
       }
 
       vm.toggleTaken = function (medicine) {
+        if (medicine._saving) return;
         var newState = !medicine.taken;
-        MedicineApi.markTaken(medicine.id, newState).then(function () {
-          medicine.taken = newState;
-          $rootScope.$broadcast("doseUpdated");
+        medicine._saving = true;
+        medicine.taken = newState;
+
+        MedicineApi.markTaken(medicine.id, newState).then(function (resp) {
+          medicine._saving = false;
+          $rootScope.$broadcast("doseUpdated", resp.data.progress);
+        }).catch(function () {
+          medicine.taken = !newState;
+          medicine._saving = false;
         });
       };
 

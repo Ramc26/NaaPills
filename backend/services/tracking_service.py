@@ -4,7 +4,9 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Any
 from zoneinfo import ZoneInfo
 
-from backend.services.data_loader import TRACKING_FILE, read_json, write_json
+from backend.services.data_loader import TRACKING_FILE
+from backend.services import supplement_service
+from backend.services.blob_storage import read_tracking, storage_mode, storage_note, write_tracking
 from backend.services.medicine_service import get_all_medicines
 
 # IST for Nannagaru's timezone
@@ -17,11 +19,11 @@ def _today_key(on_date: date | None = None) -> str:
 
 
 def _load_tracking() -> dict[str, Any]:
-    return read_json(TRACKING_FILE)
+    return read_tracking(TRACKING_FILE)
 
 
 def _save_tracking(data: dict[str, Any]) -> None:
-    write_json(TRACKING_FILE, data)
+    write_tracking(TRACKING_FILE, data)
 
 
 def _normalize_entry(entry: Any) -> dict[str, Any]:
@@ -69,11 +71,15 @@ def _format_taken_at(dt: datetime) -> str:
 
 
 def get_day_status(on_date: date | None = None) -> dict[str, dict[str, Any]]:
-    """Return {dose_id: {taken, taken_at}} for the given date."""
+    """Return {dose_id: {taken, taken_at}} for the given date (pills only)."""
     key = _today_key(on_date)
     tracking = _load_tracking()
     raw = tracking.get(key, {})
-    return {dose_id: _normalize_entry(entry) for dose_id, entry in raw.items()}
+    return {
+        dose_id: _normalize_entry(entry)
+        for dose_id, entry in raw.items()
+        if not dose_id.startswith("_")
+    }
 
 
 def mark_taken(dose_id: str, taken: bool = True, on_date: date | None = None) -> dict[str, Any]:
@@ -92,15 +98,21 @@ def mark_taken(dose_id: str, taken: bool = True, on_date: date | None = None) ->
         tracking[key][dose_id] = {"taken": False, "taken_at": None}
 
     _save_tracking(tracking)
-    return {d: _normalize_entry(e) for d, e in tracking[key].items()}
+    return {
+        d: _normalize_entry(e) for d, e in tracking[key].items() if not d.startswith("_")
+    }
 
 
 def get_today_progress(on_date: date | None = None) -> dict[str, Any]:
-    """Compute today's progress across all active doses."""
+    """Compute today's progress across pills + flexible supplements."""
     medicines = get_all_medicines(on_date)
+    supplements = supplement_service.get_supplements_today(on_date)
     day_status = get_day_status(on_date)
-    total = len(medicines)
-    taken = sum(1 for m in medicines if day_status.get(m["id"], {}).get("taken", False))
+
+    pill_taken = sum(1 for m in medicines if day_status.get(m["id"], {}).get("taken", False))
+    supp_taken = sum(1 for s in supplements if s.get("taken"))
+    total = len(medicines) + len(supplements)
+    taken = pill_taken + supp_taken
     percentage = round((taken / total) * 100) if total else 0
 
     doses = []
@@ -112,10 +124,13 @@ def get_today_progress(on_date: date | None = None) -> dict[str, Any]:
         "date": _today_key(on_date),
         "total": total,
         "taken": taken,
+        "pill_total": len(medicines),
+        "pill_taken": pill_taken,
         "remaining": total - taken,
         "percentage": percentage,
         "all_taken": taken == total and total > 0,
         "doses": doses,
+        "supplements": supplements,
     }
 
 
@@ -161,7 +176,9 @@ def get_pilltrack_report(days: int = 30) -> dict[str, Any]:
         on_date = date.fromisoformat(date_str)
         medicines = get_all_medicines(on_date)
         day_raw = tracking.get(date_str, {})
-        day_status = {d: _normalize_entry(e) for d, e in day_raw.items()}
+        day_status = {
+            d: _normalize_entry(e) for d, e in day_raw.items() if not d.startswith("_")
+        }
 
         dose_rows = []
         taken_count = 0
@@ -198,10 +215,43 @@ def get_pilltrack_report(days: int = 30) -> dict[str, Any]:
 
         total = len(medicines)
         all_taken = taken_count == total and total > 0
-        if all_taken:
-            perfect_days += 1
 
         dose_rows.sort(key=lambda d: _time_to_minutes(d["scheduled_time"]))
+
+        # Flexible supplements
+        supp_logged = day_raw.get("_supplements", {})
+        for supp in supplement_service.get_all_supplements(on_date):
+            entry = supp_logged.get(supp["id"], {})
+            taken = bool(entry.get("taken", False))
+            when = entry.get("when")
+            taken_at = entry.get("taken_at")
+            labels = supplement_service.WHEN_LABELS.get(when or {}, {})
+            taken_dt = _parse_taken_at(taken_at) if taken else None
+
+            if taken:
+                taken_count += 1
+
+            dose_rows.append(
+                {
+                    "id": supp["id"],
+                    "name": supp["name"],
+                    "dose": supp["dose"],
+                    "period": "flexible",
+                    "scheduled_time": labels.get("english", "Any time"),
+                    "taken": taken,
+                    "taken_at": taken_at,
+                    "taken_at_display": taken_dt.strftime("%I:%M %p") if taken_dt else None,
+                    "on_time": None,
+                    "minutes_delta": None,
+                    "minutes_delta_label": labels.get("english") if taken else None,
+                    "when_telugu": labels.get("telugu"),
+                }
+            )
+
+        total = len(medicines) + len(supplement_service.get_all_supplements(on_date))
+        all_taken = taken_count == total and total > 0
+        if all_taken:
+            perfect_days += 1
 
         report_days.append(
             {
@@ -223,6 +273,8 @@ def get_pilltrack_report(days: int = 30) -> dict[str, Any]:
             "total_days": len(report_days),
             "perfect_days": perfect_days,
             "on_time_window_minutes": ON_TIME_WINDOW_MINUTES,
+            "storage": storage_mode(),
+            "storage_note": storage_note(),
         },
     }
 

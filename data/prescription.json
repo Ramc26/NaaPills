@@ -104,14 +104,10 @@
       "duration_days": 60,
       "start_date": "2026-06-12",
       "active": true,
+      "flexible": true,
+      "notes": "Mix in warm water or milk — any time after breakfast, evening, or before sleep",
       "total_servings_required": 60,
-      "schedule": [
-        {
-          "time": "11:00 AM",
-          "period": "morning",
-          "note": "Mix in warm water or milk"
-        }
-      ],
+      "schedule": [],
       "image": "/images/health-3r.jpg"
     },
     {

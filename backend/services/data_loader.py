@@ -6,7 +6,6 @@ import shutil
 from pathlib import Path
 from typing import Any
 
-# Bundled read-only data shipped with the app
 BUNDLED_DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 
 
@@ -25,10 +24,13 @@ def _resolve_data_dir() -> Path:
 
     data_dir.mkdir(parents=True, exist_ok=True)
 
-    # Medicines schedule is read-only — always copy latest from bundle
+    # Medicines + supplements schedule — always copy latest from bundle
     bundled_medicines = BUNDLED_DATA_DIR / "medicines.json"
     if bundled_medicines.exists():
         shutil.copy2(bundled_medicines, data_dir / "medicines.json")
+    bundled_supplements = BUNDLED_DATA_DIR / "supplements.json"
+    if bundled_supplements.exists():
+        shutil.copy2(bundled_supplements, data_dir / "supplements.json")
 
     # Tracking starts empty; preserve existing /tmp file once created
     tracking = data_dir / "tracking.json"
@@ -41,12 +43,13 @@ def _resolve_data_dir() -> Path:
 DATA_DIR = _resolve_data_dir()
 MEDICINES_FILE = DATA_DIR / "medicines.json"
 TRACKING_FILE = DATA_DIR / "tracking.json"
+SUPPLEMENTS_FILE = DATA_DIR / "supplements.json"
 
 
 def read_json(path: Path) -> Any:
     """Load JSON from disk; return empty list/dict when file is missing."""
     if not path.exists():
-        return [] if path.name == "medicines.json" else {}
+        return [] if path.name in ("medicines.json", "supplements.json") else {}
     with path.open(encoding="utf-8") as f:
         return json.load(f)
 

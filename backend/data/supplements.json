@@ -1,0 +1,19 @@
+[
+  {
+    "id": "health_3r",
+    "name": "Health-3R Vanilla",
+    "type": "protein_powder",
+    "dose": "2 tsp",
+    "notes": "Mix in warm water or milk",
+    "duration_days": 60,
+    "start_date": "2026-06-12",
+    "target_per_day": 1,
+    "image": "/images/placeholder.svg",
+    "flexible": true,
+    "when_options": [
+      { "id": "breakfast", "telugu": "ఫలహారం తరువాత", "english": "After breakfast" },
+      { "id": "evening", "telugu": "సాయంత్రం", "english": "Evening" },
+      { "id": "bedtime", "telugu": "నిద్రకు ముందు", "english": "Before sleep" }
+    ]
+  }
+]

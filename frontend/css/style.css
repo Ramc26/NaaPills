@@ -195,16 +195,16 @@ img {
 }
 
 .now-card {
-  border: 3px solid var(--accent-now);
+  border: 3px solid var(--border-soft);
   border-radius: 16px;
-  background: #FDF3EE;
+  background: var(--card-bg);
   margin-bottom: 1rem;
   overflow: hidden;
 }
 
 .now-card-missed {
-  border-color: #c0392b;
-  background: #FDF0EE;
+  border-color: #c0392b !important;
+  box-shadow: 0 0 0 1px #c0392b;
 }
 
 .now-card-status {
@@ -267,6 +267,151 @@ img {
   color: var(--accent-now);
   font-weight: 600;
   margin: 0;
+}
+
+/* ── Supplement section (Health-3R) ─────────────── */
+
+.supplement-section {
+  margin-bottom: 1.5rem;
+}
+
+.supplement-title {
+  font-family: var(--font-telugu-display);
+  font-size: 1.35rem;
+  font-weight: 400;
+  color: #00695C;
+  text-align: center;
+  margin-bottom: 0.35rem;
+}
+
+.supplement-hint-top {
+  font-family: var(--font-telugu);
+  font-size: 0.95rem;
+  color: #555;
+  text-align: center;
+  margin-bottom: 0.85rem;
+  line-height: 1.5;
+}
+
+.supplement-card {
+  border: 3px solid #80CBC4;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.supplement-card.supplement-done {
+  box-shadow: inset 5px 0 0 var(--accent-green);
+}
+
+.supplement-card-body {
+  padding: 1rem;
+  display: flex;
+  gap: 0.85rem;
+  align-items: center;
+}
+
+.supplement-image {
+  flex: 0 0 84px;
+  width: 84px;
+  height: 84px;
+  border-radius: 12px;
+  background: #B2DFDB;
+  border: 1px solid #4DB6AC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.supplement-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.supplement-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #004D40;
+  margin: 0 0 0.15rem;
+}
+
+.supplement-dose {
+  font-size: 1rem;
+  color: #444;
+  margin: 0;
+}
+
+.supplement-logged {
+  font-family: var(--font-telugu);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent-taken);
+  margin: 0.35rem 0 0;
+}
+
+.supplement-suggest {
+  font-family: var(--font-telugu);
+  font-size: 0.95rem;
+  color: #00695C;
+  margin: 0.35rem 0 0;
+}
+
+.supplement-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.supplement-btn-main {
+  border-top: 2px solid #4DB6AC;
+}
+
+.supplement-when-picker {
+  padding: 0.85rem 1rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-top: 1px dashed #80CBC4;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.when-picker-label {
+  font-family: var(--font-telugu);
+  font-size: 1rem;
+  font-weight: 600;
+  color: #004D40;
+  margin: 0;
+  text-align: center;
+}
+
+.btn-when {
+  width: 100%;
+  padding: 0.85rem;
+  font-family: var(--font-telugu);
+  font-size: 1.15rem;
+  font-weight: 600;
+  border: 2px solid #4DB6AC;
+  border-radius: 12px;
+  background: #fff;
+  color: #00695C;
+  cursor: pointer;
+  min-height: 52px;
+}
+
+.btn-when-toggle {
+  width: 100%;
+  padding: 0.75rem;
+  font-family: var(--font-telugu);
+  font-size: 1rem;
+  border: none;
+  border-top: 1px solid #B2DFDB;
+  background: #E0F2F1;
+  color: #00695C;
+  cursor: pointer;
+  min-height: 48px;
 }
 
 /* ── Period buttons (home) ──────────────────────── */
@@ -387,8 +532,118 @@ img {
 }
 
 .medicine-card.taken {
-  border-color: var(--accent-green);
-  background: var(--accent-green-light);
+  box-shadow: inset 5px 0 0 var(--accent-green);
+  transition: background 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+  opacity: 0.92;
+}
+
+/* ── Per-medicine pastel colors ─────────────────── */
+
+/* Panhorst DSR — lavender */
+.med-panhorst_dsr { background: #EDE7F6; border-color: #B39DDB; }
+.med-panhorst_dsr .medicine-name,
+.med-panhorst_dsr .now-card-name { color: #4527A0; }
+.med-panhorst_dsr .now-card-food,
+.med-panhorst_dsr .detail-value-telugu { color: #5E35B1; }
+.med-panhorst_dsr .medicine-image-wrap,
+.med-panhorst_dsr .now-card-image { background: #F3E5F5; border-color: #CE93D8; }
+.med-panhorst_dsr .btn-take-pending { background: #5E35B1; }
+.med-panhorst_dsr.taken, .now-card.med-panhorst_dsr.taken { background: #E8F5E9; }
+
+/* Dolo 650 — sky blue */
+.med-dolo_650 { background: #E3F2FD; border-color: #90CAF9; }
+.med-dolo_650 .medicine-name,
+.med-dolo_650 .now-card-name { color: #0D47A1; }
+.med-dolo_650 .now-card-food,
+.med-dolo_650 .detail-value-telugu { color: #1565C0; }
+.med-dolo_650 .medicine-image-wrap,
+.med-dolo_650 .now-card-image { background: #E1F5FE; border-color: #81D4FA; }
+.med-dolo_650 .btn-take-pending { background: #1565C0; }
+.med-dolo_650.taken, .now-card.med-dolo_650.taken { background: #E8F5E9; }
+
+/* Zyapixa — rose pink */
+.med-zyapixa { background: #FCE4EC; border-color: #F48FB1; }
+.med-zyapixa .medicine-name,
+.med-zyapixa .now-card-name { color: #880E4F; }
+.med-zyapixa .now-card-food,
+.med-zyapixa .detail-value-telugu { color: #AD1457; }
+.med-zyapixa .medicine-image-wrap,
+.med-zyapixa .now-card-image { background: #F8BBD9; border-color: #F06292; }
+.med-zyapixa .btn-take-pending { background: #AD1457; }
+.med-zyapixa.taken, .now-card.med-zyapixa.taken { background: #E8F5E9; }
+
+/* Steon K2 — warm peach */
+.med-steon_k2 { background: #FFF3E0; border-color: #FFCC80; }
+.med-steon_k2 .medicine-name,
+.med-steon_k2 .now-card-name { color: #E65100; }
+.med-steon_k2 .now-card-food,
+.med-steon_k2 .detail-value-telugu { color: #EF6C00; }
+.med-steon_k2 .medicine-image-wrap,
+.med-steon_k2 .now-card-image { background: #FFE0B2; border-color: #FFB74D; }
+.med-steon_k2 .btn-take-pending { background: #EF6C00; }
+.med-steon_k2.taken, .now-card.med-steon_k2.taken { background: #E8F5E9; }
+
+/* Build Joint — sage green */
+.med-build_joint { background: #E8F5E9; border-color: #A5D6A7; }
+.med-build_joint .medicine-name,
+.med-build_joint .now-card-name { color: #1B5E20; }
+.med-build_joint .now-card-food,
+.med-build_joint .detail-value-telugu { color: #2E7D32; }
+.med-build_joint .medicine-image-wrap,
+.med-build_joint .now-card-image { background: #C8E6C9; border-color: #81C784; }
+.med-build_joint .btn-take-pending { background: #2E7D32; }
+.med-build_joint.taken, .now-card.med-build_joint.taken { background: #DCEDC8; }
+
+/* Ticobon-MR — soft yellow */
+.med-ticobon_mr { background: #FFFDE7; border-color: #FFF176; }
+.med-ticobon_mr .medicine-name,
+.med-ticobon_mr .now-card-name { color: #F57F17; }
+.med-ticobon_mr .now-card-food,
+.med-ticobon_mr .detail-value-telugu { color: #F9A825; }
+.med-ticobon_mr .medicine-image-wrap,
+.med-ticobon_mr .now-card-image { background: #FFF9C4; border-color: #FFEE58; }
+.med-ticobon_mr .btn-take-pending { background: #F57F17; }
+.med-ticobon_mr.taken, .now-card.med-ticobon_mr.taken { background: #E8F5E9; }
+
+/* Health-3R — mint teal */
+.med-health_3r { background: #E0F2F1; border-color: #80CBC4; }
+.med-health_3r .medicine-name,
+.med-health_3r .now-card-name { color: #004D40; }
+.med-health_3r .now-card-food,
+.med-health_3r .detail-value-telugu { color: #00695C; }
+.med-health_3r .medicine-image-wrap,
+.med-health_3r .now-card-image { background: #B2DFDB; border-color: #4DB6AC; }
+.med-health_3r .btn-take-pending { background: #00695C; }
+.med-health_3r.taken, .now-card.med-health_3r.taken { background: #E8F5E9; }
+
+/* Pregcoba-NT — soft coral */
+.med-pregcoba_nt { background: #FBE9E7; border-color: #FFAB91; }
+.med-pregcoba_nt .medicine-name,
+.med-pregcoba_nt .now-card-name { color: #BF360C; }
+.med-pregcoba_nt .now-card-food,
+.med-pregcoba_nt .detail-value-telugu { color: #D84315; }
+.med-pregcoba_nt .medicine-image-wrap,
+.med-pregcoba_nt .now-card-image { background: #FFCCBC; border-color: #FF8A65; }
+.med-pregcoba_nt .btn-take-pending { background: #D84315; }
+.med-pregcoba_nt.taken, .now-card.med-pregcoba_nt.taken { background: #E8F5E9; }
+
+/* Shared: medicine name stands out */
+.medicine-card .medicine-name,
+.now-card .now-card-name {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.medicine-card .detail-label {
+  color: #444;
+}
+
+.medicine-card .detail-value {
+  font-weight: 600;
+}
+
+.now-card .now-card-meta {
+  font-weight: 500;
 }
 
 .medicine-card-body {
@@ -524,6 +779,11 @@ img {
 .btn-take-done:hover {
   background: #245A42;
   color: #fff;
+}
+
+.btn-take-saving {
+  opacity: 0.75;
+  pointer-events: none;
 }
 
 /* ── States ─────────────────────────────────────── */

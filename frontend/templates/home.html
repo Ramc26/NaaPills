@@ -6,10 +6,11 @@
   <h2 class="now-title">{{ home.nowTitle }}</h2>
 
   <div class="now-card" ng-repeat="med in home.nowMedicines"
-       ng-class="{ 'now-card-missed': med.reminderStatus === 'missed' }">
+       ng-class="[med.colorClass, { 'now-card-missed': med.reminderStatus === 'missed' }]">
     <div class="now-card-body">
       <div class="now-card-image img-tappable" ng-click="viewer.open(med.image, med.name)">
         <img ng-src="{{ med.image }}" alt="{{ med.name }}"
+             loading="lazy" decoding="async" width="84" height="84"
              onerror="this.onerror=null; this.src='/images/placeholder.svg';">
       </div>
       <div class="now-card-info">
@@ -19,8 +20,66 @@
         <p class="now-card-status" ng-if="med.reminderStatus === 'missed'">⚠️ మరచిపోయింది</p>
       </div>
     </div>
-    <button type="button" class="btn-take btn-take-pending" ng-click="home.markTaken(med)">
+    <button type="button" class="btn-take btn-take-pending"
+            ng-class="{ 'btn-take-saving': med._saving }"
+            ng-click="home.markTaken(med)">
       &#10003; తీసుకున్నాను
+    </button>
+  </div>
+</section>
+
+<!-- Health-3R protein — flexible timing, not in morning schedule -->
+<section class="supplement-section" ng-if="!home.loading && home.supplement">
+  <h2 class="supplement-title">ప్రోటీన్ పౌడర్</h2>
+  <p class="supplement-hint-top">ఎప్పుడైనా తీసుకోవచ్చు — 2 tsp వెచ్చటి నీళ్ళు లేదా పాలలో కలపండి</p>
+
+  <div class="supplement-card med-health_3r" ng-class="{ 'supplement-done': home.supplement.taken }">
+    <div class="supplement-card-body">
+      <div class="supplement-image img-tappable" ng-click="viewer.open(home.supplement.image, home.supplement.name)">
+        <img ng-src="{{ home.supplement.image }}" alt="{{ home.supplement.name }}"
+             loading="lazy" decoding="async" width="84" height="84"
+             onerror="this.onerror=null; this.src='/images/placeholder.svg';">
+      </div>
+      <div class="supplement-info">
+        <p class="supplement-name">{{ home.supplement.name }}</p>
+        <p class="supplement-dose">{{ home.supplement.dose }}</p>
+
+        <p class="supplement-logged" ng-if="home.supplement.taken">
+          &#10003; {{ home.supplement.when_telugu }}
+          <span ng-if="home.supplement.taken_at_display"> · {{ home.supplement.taken_at_display }}</span>
+        </p>
+
+        <p class="supplement-suggest" ng-if="!home.supplement.taken && !home.showWhenPicker">
+          ఇప్పుడు: <strong>{{ home.suggestedWhen.telugu }}</strong> గా నమోదు అవుతుంది
+        </p>
+      </div>
+    </div>
+
+    <!-- Not taken yet -->
+    <div ng-if="!home.supplement.taken">
+      <div class="supplement-when-picker" ng-if="home.showWhenPicker">
+        <p class="when-picker-label">ఎప్పుడు తీసుకున్నారు?</p>
+        <button type="button" class="btn-when" ng-click="home.logSupplementWhen('breakfast')">ఫలహారం తరువాత</button>
+        <button type="button" class="btn-when" ng-click="home.logSupplementWhen('evening')">సాయంత్రం</button>
+        <button type="button" class="btn-when" ng-click="home.logSupplementWhen('bedtime')">నిద్రకు ముందు</button>
+      </div>
+      <div class="supplement-actions">
+        <button type="button" class="btn-take btn-take-pending supplement-btn-main"
+                ng-class="{ 'btn-take-saving': home.supplement._saving }"
+                ng-click="home.logSupplementQuick()">
+          &#10003; తీసుకున్నాను
+        </button>
+        <button type="button" class="btn-when-toggle" ng-click="home.toggleWhenPicker()">
+          {{ home.showWhenPicker ? 'మూసివేయి' : 'వేరే సమయం?' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Already taken — allow undo -->
+    <button type="button" class="btn-take btn-take-done" ng-if="home.supplement.taken"
+            ng-class="{ 'btn-take-saving': home.supplement._saving }"
+            ng-click="home.undoSupplement()">
+      మార్చండి / రద్దు చేయండి
     </button>
   </div>
 </section>
