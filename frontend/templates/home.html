@@ -26,6 +26,13 @@
       &#10003; తీసుకున్నాను
     </button>
   </div>
+
+  <button type="button" class="btn-mark-all"
+          ng-if="home.nowMedicines.length > 1"
+          ng-class="{ 'btn-take-saving': home._batchSaving }"
+          ng-click="home.markAllNow()">
+    &#10003; అన్ని తీసుకున్నాను
+  </button>
 </section>
 
 <!-- Health-3R protein — flexible timing, not in morning schedule -->

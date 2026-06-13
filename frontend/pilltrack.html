@@ -22,35 +22,73 @@
         </div>
         <button type="button" class="pt-refresh" id="btnRefresh" title="Refresh">↻</button>
       </div>
+      <nav class="pt-tabs">
+        <button type="button" class="pt-tab pt-tab-active" data-tab="track">Track</button>
+        <button type="button" class="pt-tab" data-tab="manage">Manage</button>
+      </nav>
     </header>
 
-    <section class="pt-today" id="todayCard" hidden>
-      <p class="pt-today-label">Today</p>
-      <div class="pt-today-row">
-        <div class="pt-ring-wrap">
-          <svg class="pt-ring" viewBox="0 0 120 120">
-            <circle class="pt-ring-bg" cx="60" cy="60" r="52"/>
-            <circle class="pt-ring-fill" id="ringFill" cx="60" cy="60" r="52"/>
-          </svg>
-          <span class="pt-ring-text" id="ringPct">0%</span>
+    <div id="panelTrack">
+      <section class="pt-today" id="todayCard" hidden>
+        <p class="pt-today-label">Today</p>
+        <div class="pt-today-row">
+          <div class="pt-ring-wrap">
+            <svg class="pt-ring" viewBox="0 0 120 120">
+              <circle class="pt-ring-bg" cx="60" cy="60" r="52"/>
+              <circle class="pt-ring-fill" id="ringFill" cx="60" cy="60" r="52"/>
+            </svg>
+            <span class="pt-ring-text" id="ringPct">0%</span>
+          </div>
+          <div class="pt-today-stats">
+            <p class="pt-today-count" id="todayCount">0 / 14</p>
+            <p class="pt-today-sub" id="todaySub">medicines taken</p>
+            <p class="pt-today-ontime" id="todayOntime">0 on time</p>
+          </div>
         </div>
-        <div class="pt-today-stats">
-          <p class="pt-today-count" id="todayCount">0 / 14</p>
-          <p class="pt-today-sub" id="todaySub">medicines taken</p>
-          <p class="pt-today-ontime" id="todayOntime">0 on time</p>
+      </section>
+
+      <section class="pt-stats" id="summary">
+        <div class="pt-stat"><span class="pt-stat-num" id="totalDays">—</span><span class="pt-stat-lbl">Days</span></div>
+        <div class="pt-stat"><span class="pt-stat-num" id="perfectDays">—</span><span class="pt-stat-lbl">Perfect</span></div>
+        <div class="pt-stat"><span class="pt-stat-num" id="windowMins">±15</span><span class="pt-stat-lbl">Window</span></div>
+      </section>
+
+      <main class="pt-main" id="trackMain">
+        <p class="pt-loading" id="loading">Loading...</p>
+      </main>
+    </div>
+
+    <div id="panelManage" hidden>
+      <p class="pt-manage-hint">
+        Skip doses when not needed (e.g. Dolo 650 if no fever). Skipped doses won't show on Nannagaru's phone today.
+      </p>
+      <p class="pt-manage-meta" id="manageMeta"></p>
+      <main class="pt-main" id="manageMain">
+        <p class="pt-loading" id="manageLoading">Loading schedule...</p>
+      </main>
+
+      <section class="pt-add-form" id="addForm">
+        <h3 class="pt-add-title">Add new medicine dose</h3>
+        <div class="pt-form-grid">
+          <label>ID <input type="text" id="addId" placeholder="new_med_morning"></label>
+          <label>Name <input type="text" id="addName" placeholder="Medicine name"></label>
+          <label>Period
+            <select id="addPeriod">
+              <option value="morning">Morning</option>
+              <option value="afternoon">Afternoon</option>
+              <option value="evening">Evening</option>
+              <option value="bedtime">Bedtime</option>
+            </select>
+          </label>
+          <label>Time <input type="text" id="addTime" placeholder="08:00 AM"></label>
+          <label>Dose <input type="text" id="addDose" placeholder="1 Tablet"></label>
+          <label>Start date <input type="date" id="addStart"></label>
+          <label>Duration (days) <input type="number" id="addDuration" value="30" min="1"></label>
         </div>
-      </div>
-    </section>
-
-    <section class="pt-stats" id="summary">
-      <div class="pt-stat"><span class="pt-stat-num" id="totalDays">—</span><span class="pt-stat-lbl">Days</span></div>
-      <div class="pt-stat"><span class="pt-stat-num" id="perfectDays">—</span><span class="pt-stat-lbl">Perfect</span></div>
-      <div class="pt-stat"><span class="pt-stat-num" id="windowMins">±15</span><span class="pt-stat-lbl">Window</span></div>
-    </section>
-
-    <main class="pt-main" id="trackMain">
-      <p class="pt-loading" id="loading">Loading...</p>
-    </main>
+        <button type="button" class="pt-btn pt-btn-primary" id="btnAddDose">Add dose</button>
+        <p class="pt-form-msg" id="addMsg"></p>
+      </section>
+    </div>
 
     <footer class="pt-footer">
       <p class="pt-storage-title">Where is data stored?</p>

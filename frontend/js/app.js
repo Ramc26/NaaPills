@@ -147,6 +147,47 @@
     $rootScope.viewer = ImageViewer;
   }]);
 
+  /* ── Take feedback (haptic + sound) ─────────────────────────── */
+
+  app.factory("TakeFeedback", [function () {
+    var audioCtx = null;
+
+    function getCtx() {
+      if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioCtx;
+    }
+
+    function playTone(freq, start, duration, gain) {
+      var ctx = getCtx();
+      if (!ctx) return;
+      if (ctx.state === "suspended") ctx.resume();
+      var osc = ctx.createOscillator();
+      var vol = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      vol.gain.setValueAtTime(0.0001, ctx.currentTime + start);
+      vol.gain.exponentialRampToValueAtTime(gain, ctx.currentTime + start + 0.02);
+      vol.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + duration);
+      osc.connect(vol);
+      vol.connect(ctx.destination);
+      osc.start(ctx.currentTime + start);
+      osc.stop(ctx.currentTime + start + duration + 0.05);
+    }
+
+    return {
+      success: function () {
+        if (navigator.vibrate) {
+          navigator.vibrate([100, 50, 100, 50, 180]);
+        }
+        playTone(523.25, 0, 0.18, 0.45);
+        playTone(659.25, 0.14, 0.22, 0.55);
+        playTone(783.99, 0.28, 0.28, 0.5);
+      },
+    };
+  }]);
+
   /* ── API Service ────────────────────────────────────────────── */
 
   app.service("MedicineApi", ["$http", "API_BASE", function ($http, API_BASE) {
@@ -169,6 +210,10 @@
         dose_id: doseId,
         taken: taken !== false,
       });
+    };
+
+    this.markTakenBatch = function (opts) {
+      return $http.post(base + "/mark-taken-batch", opts || {});
     };
 
     this.getSupplementsToday = function () {
@@ -231,8 +276,8 @@
   /* ── Home Controller ────────────────────────────────────────── */
 
   app.controller("HomeController", [
-    "MedicineApi", "$rootScope", "$interval", "LABELS",
-    function (MedicineApi, $rootScope, $interval, LABELS) {
+    "MedicineApi", "$rootScope", "$interval", "LABELS", "TakeFeedback",
+    function (MedicineApi, $rootScope, $interval, LABELS, TakeFeedback) {
       var vm = this;
       var WINDOW_MINUTES = 15; // ± window for "take now"
 
@@ -338,6 +383,7 @@
           vm.supplement = resp.data.supplements[0];
           vm.supplement._saving = false;
           vm.showWhenPicker = false;
+          TakeFeedback.success();
           $rootScope.$broadcast("doseUpdated", resp.data.progress);
         }).catch(function () {
           vm.supplement._saving = false;
@@ -351,6 +397,7 @@
           vm.supplement = resp.data.supplements[0];
           vm.supplement._saving = false;
           vm.showWhenPicker = false;
+          TakeFeedback.success();
           $rootScope.$broadcast("doseUpdated", resp.data.progress);
         }).catch(function () {
           vm.supplement._saving = false;
@@ -380,6 +427,7 @@
 
         MedicineApi.markTaken(medicine.id, true).then(function (resp) {
           medicine._saving = false;
+          TakeFeedback.success();
           vm.nowMedicines = vm.nowMedicines.filter(function (m) {
             return m.id !== medicine.id;
           });
@@ -387,6 +435,25 @@
         }).catch(function () {
           medicine.taken = false;
           medicine._saving = false;
+        });
+      };
+
+      vm.markAllNow = function () {
+        var untaken = vm.nowMedicines.filter(function (m) { return !m.taken && !m._saving; });
+        if (!untaken.length || vm._batchSaving) return;
+        vm._batchSaving = true;
+        var ids = untaken.map(function (m) { return m.id; });
+        untaken.forEach(function (m) { m.taken = true; });
+
+        MedicineApi.markTakenBatch({ dose_ids: ids, taken: true }).then(function (resp) {
+          vm._batchSaving = false;
+          TakeFeedback.success();
+          vm.nowMedicines = [];
+          $rootScope.$broadcast("doseUpdated", resp.data.progress);
+        }).catch(function () {
+          vm._batchSaving = false;
+          untaken.forEach(function (m) { m.taken = false; });
+          load();
         });
       };
 
@@ -400,8 +467,8 @@
   /* ── Period Controller ──────────────────────────────────────── */
 
   app.controller("PeriodController", [
-    "$routeParams", "MedicineApi", "$rootScope", "LABELS",
-    function ($routeParams, MedicineApi, $rootScope, LABELS) {
+    "$routeParams", "MedicineApi", "$rootScope", "LABELS", "TakeFeedback",
+    function ($routeParams, MedicineApi, $rootScope, LABELS, TakeFeedback) {
       var vm = this;
       vm.loading = true;
       vm.medicines = [];
@@ -432,6 +499,10 @@
         });
       }
 
+      vm.untakenCount = function () {
+        return vm.medicines.filter(function (m) { return !m.taken; }).length;
+      };
+
       vm.toggleTaken = function (medicine) {
         if (medicine._saving) return;
         var newState = !medicine.taken;
@@ -440,10 +511,28 @@
 
         MedicineApi.markTaken(medicine.id, newState).then(function (resp) {
           medicine._saving = false;
+          if (newState) TakeFeedback.success();
           $rootScope.$broadcast("doseUpdated", resp.data.progress);
         }).catch(function () {
           medicine.taken = !newState;
           medicine._saving = false;
+        });
+      };
+
+      vm.markAllTaken = function () {
+        if (vm._batchSaving || vm.untakenCount() === 0) return;
+        vm._batchSaving = true;
+        vm.medicines.forEach(function (m) {
+          if (!m.taken) m.taken = true;
+        });
+
+        MedicineApi.markTakenBatch({ period: vm.periodName, taken: true }).then(function (resp) {
+          vm._batchSaving = false;
+          TakeFeedback.success();
+          $rootScope.$broadcast("doseUpdated", resp.data.progress);
+        }).catch(function () {
+          vm._batchSaving = false;
+          loadMedicines();
         });
       };
 

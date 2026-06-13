@@ -30,6 +30,14 @@
         "when": "breakfast",
         "taken_at": "2026-06-13T11:23:18.608836+05:30"
       }
+    },
+    "dolo_650_afternoon": {
+      "taken": true,
+      "taken_at": "2026-06-13T17:42:31.053780+05:30"
+    },
+    "dolo_650_evening": {
+      "taken": true,
+      "taken_at": "2026-06-13T17:42:35.874900+05:30"
     }
   }
 }

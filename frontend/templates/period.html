@@ -13,6 +13,14 @@
 </div>
 
 <div ng-if="!period.loading && period.medicines.length > 0" class="medicine-list">
+
+  <button type="button" class="btn-mark-all"
+          ng-if="period.untakenCount() > 1"
+          ng-class="{ 'btn-take-saving': period._batchSaving }"
+          ng-click="period.markAllTaken()">
+    &#10003; అన్ని తీసుకున్నాను
+  </button>
+
   <div class="card medicine-card"
        ng-repeat="med in period.medicines"
        ng-class="[med.colorClass, { taken: med.taken }]">

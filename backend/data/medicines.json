@@ -23,7 +23,7 @@
     "notes": "Take after breakfast",
     "duration_days": 15,
     "start_date": "2026-06-12",
-    "image": "/images/dolo650.png"
+    "image": "/images/dolo650.jpg"
   },
   {
     "id": "zyapixa_morning",
@@ -88,7 +88,7 @@
     "notes": "Take after lunch",
     "duration_days": 15,
     "start_date": "2026-06-12",
-    "image": "/images/dolo650.png"
+    "image": "/images/dolo650.jpg"
   },
   {
     "id": "dolo_650_evening",
@@ -101,7 +101,7 @@
     "notes": "Take after dinner",
     "duration_days": 15,
     "start_date": "2026-06-12",
-    "image": "/images/dolo650.png"
+    "image": "/images/dolo650.jpg"
   },
   {
     "id": "pregcoba_nt_bedtime",

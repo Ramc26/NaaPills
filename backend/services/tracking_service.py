@@ -103,6 +103,39 @@ def mark_taken(dose_id: str, taken: bool = True, on_date: date | None = None) ->
     }
 
 
+def mark_taken_batch(
+    dose_ids: list[str] | None = None,
+    period: str | None = None,
+    taken: bool = True,
+    on_date: date | None = None,
+) -> dict[str, Any]:
+    """Mark multiple doses at once — by id list or all untaken in a period."""
+    if period:
+        from backend.services.medicine_service import get_medicines_by_period
+
+        period = period.lower()
+        dose_ids = [m["id"] for m in get_medicines_by_period(period, on_date)]
+    if not dose_ids:
+        return get_day_status(on_date)
+
+    key = _today_key(on_date)
+    tracking = _load_tracking()
+    if key not in tracking:
+        tracking[key] = {}
+
+    now_str = _format_taken_at(datetime.now(TZ))
+    for dose_id in dose_ids:
+        if taken:
+            tracking[key][dose_id] = {"taken": True, "taken_at": now_str}
+        else:
+            tracking[key][dose_id] = {"taken": False, "taken_at": None}
+
+    _save_tracking(tracking)
+    return {
+        d: _normalize_entry(e) for d, e in tracking[key].items() if not d.startswith("_")
+    }
+
+
 def get_today_progress(on_date: date | None = None) -> dict[str, Any]:
     """Compute today's progress across pills + flexible supplements."""
     medicines = get_all_medicines(on_date)

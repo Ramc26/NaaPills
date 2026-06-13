@@ -786,6 +786,26 @@ img {
   pointer-events: none;
 }
 
+.btn-mark-all {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 1.1rem;
+  font-family: var(--font-telugu);
+  font-size: 1.35rem;
+  font-weight: 700;
+  border: 3px solid var(--accent-taken);
+  border-radius: 12px;
+  background: #e8f5e9;
+  color: #1b5e20;
+  min-height: 68px;
+  cursor: pointer;
+}
+
+.btn-mark-all:active {
+  background: var(--accent-taken);
+  color: #fff;
+}
+
 /* ── States ─────────────────────────────────────── */
 
 .empty-state {

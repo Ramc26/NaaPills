@@ -37,6 +37,14 @@ def _resolve_data_dir() -> Path:
     if not tracking.exists():
         tracking.write_text("{}\n", encoding="utf-8")
 
+    schedule = data_dir / "schedule.json"
+    if not schedule.exists():
+        bundled_schedule = BUNDLED_DATA_DIR / "schedule.json"
+        if bundled_schedule.exists():
+            shutil.copy2(bundled_schedule, schedule)
+        else:
+            schedule.write_text('{"disabled_doses":[],"daily_skips":{},"custom_doses":[]}\n', encoding="utf-8")
+
     return data_dir
 
 
@@ -44,6 +52,7 @@ DATA_DIR = _resolve_data_dir()
 MEDICINES_FILE = DATA_DIR / "medicines.json"
 TRACKING_FILE = DATA_DIR / "tracking.json"
 SUPPLEMENTS_FILE = DATA_DIR / "supplements.json"
+SCHEDULE_FILE = DATA_DIR / "schedule.json"
 
 
 def read_json(path: Path) -> Any:

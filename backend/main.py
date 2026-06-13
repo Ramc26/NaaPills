@@ -15,7 +15,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from backend.services import medicine_service, supplement_service, tracking_service
+from backend.services import medicine_service, schedule_service, supplement_service, tracking_service
 from backend.services.blob_storage import read_tracking, storage_mode, storage_note, use_blob_storage
 from backend.services.data_loader import TRACKING_FILE
 
@@ -41,6 +41,38 @@ class MarkTakenRequest(BaseModel):
     dose_id: str = Field(..., description="Unique dose id, e.g. dolo_650_morning")
     taken: bool = Field(default=True, description="True = taken, False = undo")
     date: str | None = Field(default=None, description="YYYY-MM-DD, defaults to today")
+
+
+class MarkTakenBatchRequest(BaseModel):
+    """Mark all untaken doses in a period, or a specific list."""
+
+    period: str | None = Field(default=None, description="morning/afternoon/evening/bedtime")
+    dose_ids: list[str] | None = Field(default=None, description="Explicit dose ids")
+    taken: bool = Field(default=True)
+    date: str | None = Field(default=None, description="YYYY-MM-DD, defaults to today")
+
+
+class CustomDoseRequest(BaseModel):
+    """Add a caregiver-defined medicine dose."""
+
+    id: str
+    name: str
+    time: str
+    period: str
+    dose: str
+    start_date: str
+    duration_days: int = 30
+    food: str = "After Food"
+    notes: str = ""
+    image: str = "/images/placeholder.svg"
+    medicine_id: str | None = None
+
+
+class ScheduleActionRequest(BaseModel):
+    """Skip/unskip/disable schedule actions."""
+
+    dose_id: str
+    date: str | None = Field(default=None, description="YYYY-MM-DD for skip/unskip")
 
 
 @app.get("/api/medicines")
@@ -130,7 +162,6 @@ def mark_taken(body: MarkTakenRequest):
     """Mark a dose as taken (or undo)."""
     on_date = date.fromisoformat(body.date) if body.date else None
 
-    # Verify dose exists and is active today
     active_ids = {m["id"] for m in medicine_service.get_all_medicines(on_date)}
     if body.dose_id not in active_ids:
         raise HTTPException(status_code=404, detail=f"Dose not found: {body.dose_id}")
@@ -138,6 +169,96 @@ def mark_taken(body: MarkTakenRequest):
     day_status = tracking_service.mark_taken(body.dose_id, body.taken, on_date)
     progress = tracking_service.get_today_progress(on_date)
     return {"status": day_status, "progress": progress}
+
+
+@app.post("/api/mark-taken-batch")
+def mark_taken_batch(body: MarkTakenBatchRequest):
+    """Mark all doses in a period (or explicit list) as taken."""
+    on_date = date.fromisoformat(body.date) if body.date else None
+
+    if not body.period and not body.dose_ids:
+        raise HTTPException(status_code=400, detail="Provide period or dose_ids")
+
+    if body.period:
+        try:
+            active_ids = {m["id"] for m in medicine_service.get_medicines_by_period(body.period, on_date)}
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        dose_ids = list(active_ids)
+    else:
+        active_ids = {m["id"] for m in medicine_service.get_all_medicines(on_date)}
+        dose_ids = [d for d in body.dose_ids if d in active_ids]
+        if not dose_ids:
+            raise HTTPException(status_code=404, detail="No valid dose ids")
+
+    if body.taken:
+        day_status = tracking_service.get_day_status(on_date)
+        dose_ids = [d for d in dose_ids if not day_status.get(d, {}).get("taken", False)]
+
+    if not dose_ids and body.taken:
+        progress = tracking_service.get_today_progress(on_date)
+        return {"status": tracking_service.get_day_status(on_date), "progress": progress, "marked": 0}
+
+    day_status = tracking_service.mark_taken_batch(dose_ids, None, body.taken, on_date)
+    progress = tracking_service.get_today_progress(on_date)
+    return {"status": day_status, "progress": progress, "marked": len(dose_ids)}
+
+
+@app.get("/api/schedule")
+def get_schedule(date_str: str | None = None):
+    """Caregiver schedule admin — all doses with skip/disable status."""
+    on_date = date.fromisoformat(date_str) if date_str else None
+    return schedule_service.get_schedule_status(on_date)
+
+
+@app.post("/api/schedule/skip-today")
+def schedule_skip_today(body: ScheduleActionRequest):
+    on_date = date.fromisoformat(body.date) if body.date else None
+    try:
+        return schedule_service.skip_today(body.dose_id, on_date)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.post("/api/schedule/unskip-today")
+def schedule_unskip_today(body: ScheduleActionRequest):
+    on_date = date.fromisoformat(body.date) if body.date else None
+    try:
+        return schedule_service.unskip_today(body.dose_id, on_date)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.post("/api/schedule/disable/{dose_id}")
+def schedule_disable(dose_id: str):
+    try:
+        return schedule_service.set_disabled(dose_id, True)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.post("/api/schedule/enable/{dose_id}")
+def schedule_enable(dose_id: str):
+    try:
+        return schedule_service.set_disabled(dose_id, False)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.post("/api/schedule/add")
+def schedule_add(body: CustomDoseRequest):
+    try:
+        return schedule_service.add_custom_dose(body.model_dump())
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.delete("/api/schedule/dose/{dose_id}")
+def schedule_remove(dose_id: str):
+    try:
+        return schedule_service.remove_custom_dose(dose_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
 # Caregiver dashboard — not linked from main UI

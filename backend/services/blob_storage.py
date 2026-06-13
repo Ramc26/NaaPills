@@ -1,9 +1,8 @@
 """
-Persistent tracking storage.
+Persistent JSON storage on Vercel Blob or local disk.
 
-- Local dev: backend/data/tracking.json
-- Vercel + Blob store: naapills/tracking.json on Vercel Blob (free Hobby tier)
-- Vercel without Blob: falls back to /tmp (ephemeral — not recommended)
+- tracking: naapills/tracking.json
+- schedule: naapills/schedule.json (skips, disabled doses, custom medicines)
 """
 
 import json
@@ -19,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 BLOB_API = "https://blob.vercel-storage.com"
 TRACKING_BLOB_PATH = "naapills/tracking.json"
+SCHEDULE_BLOB_PATH = "naapills/schedule.json"
 
 
 def _blob_token() -> str | None:
@@ -49,7 +49,7 @@ def storage_note() -> str:
             "Data is on temporary server memory and may reset. "
             "Add a Vercel Blob store for permanent storage."
         )
-    return "Data is saved locally in backend/data/tracking.json (dev mode)."
+    return "Data is saved locally in backend/data/ (dev mode)."
 
 
 def _blob_headers(extra: dict[str, str] | None = None) -> dict[str, str]:
@@ -78,32 +78,31 @@ def _parse_blob_json(resp) -> dict[str, Any]:
     return data if isinstance(data, dict) else {}
 
 
-def _read_blob_tracking() -> dict[str, Any]:
-    """Read tracking JSON from Vercel Blob — try direct path, then list."""
-    # 1) Direct download by pathname (most reliable)
+def _read_blob_json(pathname: str) -> dict[str, Any]:
+    """Read a JSON blob by pathname — direct path, then list fallback."""
     try:
-        url = f"{BLOB_API}/{TRACKING_BLOB_PATH}"
+        url = f"{BLOB_API}/{pathname}"
         with _blob_request(url, headers=_blob_headers()) as resp:
             data = _parse_blob_json(resp)
             if data:
-                logger.info("Blob read OK (direct): %s keys", len(data))
+                logger.info("Blob read OK (direct): %s", pathname)
                 return data
     except urllib.error.HTTPError as exc:
         if exc.code != 404:
-            logger.warning("Blob direct read HTTP %s: %s", exc.code, exc.reason)
+            logger.warning("Blob direct read HTTP %s for %s: %s", exc.code, pathname, exc.reason)
     except Exception as exc:
-        logger.warning("Blob direct read error: %s", exc)
+        logger.warning("Blob direct read error for %s: %s", pathname, exc)
 
-    # 2) List store and find tracking file
     try:
-        query = urllib.parse.urlencode({"prefix": "naapills/"})
+        prefix = pathname.rsplit("/", 1)[0] + "/"
+        query = urllib.parse.urlencode({"prefix": prefix})
         with _blob_request(f"{BLOB_API}?{query}", headers=_blob_headers()) as resp:
             listing = json.loads(resp.read().decode("utf-8"))
 
-        blobs = listing.get("blobs", [])
-        for blob in blobs:
-            pathname = blob.get("pathname", "")
-            if "tracking" not in pathname:
+        filename = pathname.split("/")[-1]
+        for blob in listing.get("blobs", []):
+            blob_path = blob.get("pathname", "")
+            if not blob_path.endswith(filename):
                 continue
             blob_url = blob.get("downloadUrl") or blob.get("url")
             if not blob_url:
@@ -111,17 +110,15 @@ def _read_blob_tracking() -> dict[str, Any]:
             with _blob_request(blob_url, headers=_blob_headers()) as resp:
                 data = _parse_blob_json(resp)
                 if data:
-                    logger.info("Blob read OK (list): %s", pathname)
+                    logger.info("Blob read OK (list): %s", blob_path)
                     return data
     except Exception as exc:
-        logger.warning("Blob list read error: %s", exc)
+        logger.warning("Blob list read error for %s: %s", pathname, exc)
 
-    logger.warning("Blob read returned empty — no tracking data found")
     return {}
 
 
-def _write_blob_tracking(data: dict[str, Any]) -> None:
-    """Write tracking JSON to Vercel Blob (overwrite same path)."""
+def _write_blob_json(pathname: str, data: dict[str, Any]) -> None:
     body = json.dumps(data, indent=2, ensure_ascii=False).encode("utf-8")
     headers = _blob_headers(
         {
@@ -130,33 +127,54 @@ def _write_blob_tracking(data: dict[str, Any]) -> None:
             "x-allow-overwrite": "true",
         }
     )
-    with _blob_request(f"{BLOB_API}/{TRACKING_BLOB_PATH}", method="PUT", data=body, headers=headers) as resp:
+    with _blob_request(f"{BLOB_API}/{pathname}", method="PUT", data=body, headers=headers) as resp:
         result = json.loads(resp.read().decode("utf-8") or "{}")
-        logger.info("Blob write OK: %s", result.get("pathname", TRACKING_BLOB_PATH))
+        logger.info("Blob write OK: %s", result.get("pathname", pathname))
 
 
-def read_tracking(local_path: Path) -> dict[str, Any]:
-    if use_blob_storage():
-        return _read_blob_tracking()
-    if not local_path.exists():
+def _read_local_json(path: Path) -> dict[str, Any]:
+    if not path.exists():
         return {}
-    with local_path.open(encoding="utf-8") as f:
-        return json.load(f)
+    with path.open(encoding="utf-8") as f:
+        data = json.load(f)
+    return data if isinstance(data, dict) else {}
 
 
-def write_tracking(local_path: Path, data: dict[str, Any]) -> None:
+def _write_local_json(path: Path, data: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+
+
+def read_blob_doc(local_path: Path, blob_path: str) -> dict[str, Any]:
     if use_blob_storage():
-        _write_blob_tracking(data)
-        # Keep /tmp copy as fallback for same warm instance
+        return _read_blob_json(blob_path)
+    return _read_local_json(local_path)
+
+
+def write_blob_doc(local_path: Path, blob_path: str, data: dict[str, Any]) -> None:
+    if use_blob_storage():
+        _write_blob_json(blob_path, data)
         try:
-            local_path.parent.mkdir(parents=True, exist_ok=True)
-            with local_path.open("w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2, ensure_ascii=False)
-                f.write("\n")
+            _write_local_json(local_path, data)
         except OSError:
             pass
         return
-    local_path.parent.mkdir(parents=True, exist_ok=True)
-    with local_path.open("w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-        f.write("\n")
+    _write_local_json(local_path, data)
+
+
+def read_tracking(local_path: Path) -> dict[str, Any]:
+    return read_blob_doc(local_path, TRACKING_BLOB_PATH)
+
+
+def write_tracking(local_path: Path, data: dict[str, Any]) -> None:
+    write_blob_doc(local_path, TRACKING_BLOB_PATH, data)
+
+
+def read_schedule(local_path: Path) -> dict[str, Any]:
+    return read_blob_doc(local_path, SCHEDULE_BLOB_PATH)
+
+
+def write_schedule(local_path: Path, data: dict[str, Any]) -> None:
+    write_blob_doc(local_path, SCHEDULE_BLOB_PATH, data)

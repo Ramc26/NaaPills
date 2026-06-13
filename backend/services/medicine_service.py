@@ -1,29 +1,19 @@
-"""Medicine schedule logic — filter by period, date, and active duration."""
+"""Medicine schedule logic — filter by period, date, active duration, and caregiver overrides."""
 
-from datetime import date, datetime, timedelta
+from datetime import date
 from typing import Any
 
-from backend.services.data_loader import MEDICINES_FILE, read_json
+from backend.services import schedule_service
 
-VALID_PERIODS = ("morning", "afternoon", "evening", "bedtime")
-
-
-def _parse_date(value: str) -> date:
-    return datetime.strptime(value, "%Y-%m-%d").date()
-
-
-def _is_active(medicine: dict[str, Any], on_date: date) -> bool:
-    """Medicine is active between start_date and start_date + duration_days."""
-    start = _parse_date(medicine["start_date"])
-    end = start + timedelta(days=medicine["duration_days"] - 1)
-    return start <= on_date <= end
+VALID_PERIODS = schedule_service.VALID_PERIODS
 
 
 def get_all_medicines(on_date: date | None = None) -> list[dict[str, Any]]:
-    """Return all dose entries that are active on the given date."""
+    """Return dose entries active today, excluding skipped/disabled."""
     target = on_date or date.today()
-    medicines = read_json(MEDICINES_FILE)
-    return [m for m in medicines if _is_active(m, target)]
+    medicines = schedule_service._all_definitions()
+    active = [m for m in medicines if schedule_service._is_active(m, target)]
+    return schedule_service.filter_active(active, target)
 
 
 def get_medicines_by_period(period: str, on_date: date | None = None) -> list[dict[str, Any]]:
@@ -39,7 +29,6 @@ def get_today_grouped(on_date: date | None = None) -> dict[str, list[dict[str, A
     grouped = {p: [] for p in VALID_PERIODS}
     for medicine in get_all_medicines(on_date):
         grouped[medicine["period"]].append(medicine)
-    # Sort each period by scheduled time for predictable display order
     for period in grouped:
         grouped[period].sort(key=lambda m: m["time"])
     return grouped
