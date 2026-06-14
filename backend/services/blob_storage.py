@@ -29,7 +29,15 @@ def use_blob_storage() -> bool:
     return bool(_blob_token())
 
 
+def use_neon_tracking() -> bool:
+    from backend.services.tracking_db import use_neon_db
+
+    return use_neon_db()
+
+
 def storage_mode() -> str:
+    if use_neon_tracking():
+        return "neon"
     if use_blob_storage():
         return "blob"
     if os.environ.get("VERCEL"):
@@ -39,6 +47,11 @@ def storage_mode() -> str:
 
 def storage_note() -> str:
     mode = storage_mode()
+    if mode == "neon":
+        return (
+            "Data is saved permanently on Neon Postgres (cloud). "
+            "Not on Nannagaru's phone — not browser cache."
+        )
     if mode == "blob":
         return (
             "Data is saved permanently on Vercel Blob (cloud). "
@@ -47,7 +60,7 @@ def storage_note() -> str:
     if mode == "tmp":
         return (
             "Data is on temporary server memory and may reset. "
-            "Add a Vercel Blob store for permanent storage."
+            "Add Neon Postgres or Vercel Blob for permanent storage."
         )
     return "Data is saved locally in backend/data/ (dev mode)."
 
@@ -165,10 +178,22 @@ def write_blob_doc(local_path: Path, blob_path: str, data: dict[str, Any]) -> No
 
 
 def read_tracking(local_path: Path) -> dict[str, Any]:
+    from backend.services.tracking_db import bootstrap_from_local_if_empty, load_tracking as load_neon_tracking, use_neon_db
+
+    if use_neon_db():
+        bootstrap_from_local_if_empty()
+        return load_neon_tracking()
     return read_blob_doc(local_path, TRACKING_BLOB_PATH)
 
 
 def write_tracking(local_path: Path, data: dict[str, Any]) -> None:
+    from backend.services.tracking_db import save_day, use_neon_db
+
+    if use_neon_db():
+        for date_str, day in data.items():
+            if isinstance(day, dict):
+                save_day(date_str, day)
+        return
     write_blob_doc(local_path, TRACKING_BLOB_PATH, data)
 
 
