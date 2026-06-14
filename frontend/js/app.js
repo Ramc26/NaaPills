@@ -73,6 +73,17 @@
     return med;
   }
 
+  function syncTakenFromProgress(medicines, progress) {
+    if (!progress || !progress.doses) return;
+    var map = {};
+    progress.doses.forEach(function (d) { map[d.id] = d.taken; });
+    medicines.forEach(function (m) {
+      if (Object.prototype.hasOwnProperty.call(map, m.id)) {
+        m.taken = map[m.id];
+      }
+    });
+  }
+
   /* ── Image lightbox ─────────────────────────────────────────── */
 
   app.factory("ImageViewer", [function () {
@@ -192,6 +203,13 @@
 
   app.service("MedicineApi", ["$http", "API_BASE", function ($http, API_BASE) {
     var base = API_BASE + "/api";
+    var saveChain = Promise.resolve();
+
+    function enqueueSave(requestFn) {
+      var next = saveChain.then(requestFn);
+      saveChain = next.catch(function () {});
+      return next;
+    }
 
     this.getTodayGrouped = function () {
       return $http.get(base + "/today");
@@ -206,14 +224,18 @@
     };
 
     this.markTaken = function (doseId, taken) {
-      return $http.post(base + "/mark-taken", {
-        dose_id: doseId,
-        taken: taken !== false,
+      return enqueueSave(function () {
+        return $http.post(base + "/mark-taken", {
+          dose_id: doseId,
+          taken: taken !== false,
+        });
       });
     };
 
     this.markTakenBatch = function (opts) {
-      return $http.post(base + "/mark-taken-batch", opts || {});
+      return enqueueSave(function () {
+        return $http.post(base + "/mark-taken-batch", opts || {});
+      });
     };
 
     this.getSupplementsToday = function () {
@@ -511,6 +533,7 @@
 
         MedicineApi.markTaken(medicine.id, newState).then(function (resp) {
           medicine._saving = false;
+          syncTakenFromProgress(vm.medicines, resp.data.progress);
           if (newState) TakeFeedback.success();
           $rootScope.$broadcast("doseUpdated", resp.data.progress);
         }).catch(function () {
@@ -528,6 +551,7 @@
 
         MedicineApi.markTakenBatch({ period: vm.periodName, taken: true }).then(function (resp) {
           vm._batchSaving = false;
+          syncTakenFromProgress(vm.medicines, resp.data.progress);
           TakeFeedback.success();
           $rootScope.$broadcast("doseUpdated", resp.data.progress);
         }).catch(function () {

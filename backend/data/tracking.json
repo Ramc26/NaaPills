@@ -27,17 +27,63 @@
     "_supplements": {
       "health_3r": {
         "taken": true,
-        "when": "breakfast",
-        "taken_at": "2026-06-13T11:23:18.608836+05:30"
+        "when": "bedtime",
+        "taken_at": "2026-06-13T20:01:19.654377+05:30"
       }
-    },
-    "dolo_650_afternoon": {
-      "taken": true,
-      "taken_at": "2026-06-13T17:42:31.053780+05:30"
     },
     "dolo_650_evening": {
       "taken": true,
-      "taken_at": "2026-06-13T17:42:35.874900+05:30"
+      "taken_at": "2026-06-13T19:05:44.299649+05:30"
+    },
+    "dolo_650_afternoon": {
+      "taken": true,
+      "taken_at": "2026-06-13T17:20:46.810909+05:30"
+    },
+    "pregcoba_nt_bedtime": {
+      "taken": true,
+      "taken_at": "2026-06-13T19:58:22.787249+05:30"
+    },
+    "steon_k2_bedtime": {
+      "taken": true,
+      "taken_at": "2026-06-13T19:59:28.616416+05:30"
+    },
+    "ticobon_mr_bedtime": {
+      "taken": true,
+      "taken_at": "2026-06-13T19:59:43.489958+05:30"
+    },
+    "build_joint_bedtime": {
+      "taken": true,
+      "taken_at": "2026-06-13T20:00:32.569230+05:30"
+    },
+    "zyapixa_bedtime": {
+      "taken": true,
+      "taken_at": "2026-06-13T20:02:36.740166+05:30"
+    }
+  },
+  "2026-06-14": {
+    "panhorst_dsr_morning": {
+      "taken": true,
+      "taken_at": "2026-06-14T08:29:20.562433+05:30"
+    },
+    "zyapixa_morning": {
+      "taken": true,
+      "taken_at": "2026-06-14T08:29:44.771462+05:30"
+    },
+    "steon_k2_morning": {
+      "taken": true,
+      "taken_at": "2026-06-14T10:13:01.637309+05:30"
+    },
+    "dolo_650_morning": {
+      "taken": true,
+      "taken_at": "2026-06-14T10:19:03.903341+05:30"
+    },
+    "ticobon_mr_morning": {
+      "taken": true,
+      "taken_at": "2026-06-14T08:34:24.978384+05:30"
+    },
+    "build_joint_morning": {
+      "taken": true,
+      "taken_at": "2026-06-14T10:13:09.033517+05:30"
     }
   }
 }

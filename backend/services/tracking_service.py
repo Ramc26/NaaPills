@@ -13,6 +13,8 @@ from backend.services.medicine_service import get_all_medicines
 TZ = ZoneInfo("Asia/Kolkata")
 ON_TIME_WINDOW_MINUTES = 15
 
+from backend.services.tracking_persist import persist_day_update
+
 
 def _today_key(on_date: date | None = None) -> str:
     return (on_date or date.today()).isoformat()
@@ -70,6 +72,14 @@ def _format_taken_at(dt: datetime) -> str:
     return dt.astimezone(TZ).isoformat()
 
 
+def _day_status_from_raw(day: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    return {
+        dose_id: _normalize_entry(entry)
+        for dose_id, entry in day.items()
+        if not dose_id.startswith("_")
+    }
+
+
 def get_day_status(on_date: date | None = None) -> dict[str, dict[str, Any]]:
     """Return {dose_id: {taken, taken_at}} for the given date (pills only)."""
     key = _today_key(on_date)
@@ -84,23 +94,19 @@ def get_day_status(on_date: date | None = None) -> dict[str, dict[str, Any]]:
 
 def mark_taken(dose_id: str, taken: bool = True, on_date: date | None = None) -> dict[str, Any]:
     """Mark a single dose as taken or not taken, recording timestamp when taken."""
-    key = _today_key(on_date)
-    tracking = _load_tracking()
-    if key not in tracking:
-        tracking[key] = {}
-
     if taken:
-        tracking[key][dose_id] = {
+        entry = {
             "taken": True,
             "taken_at": _format_taken_at(datetime.now(TZ)),
         }
     else:
-        tracking[key][dose_id] = {"taken": False, "taken_at": None}
+        entry = {"taken": False, "taken_at": None}
 
-    _save_tracking(tracking)
-    return {
-        d: _normalize_entry(e) for d, e in tracking[key].items() if not d.startswith("_")
-    }
+    def apply(day: dict[str, Any]) -> None:
+        day[dose_id] = entry
+
+    day = persist_day_update(on_date, apply)
+    return _day_status_from_raw(day)
 
 
 def mark_taken_batch(
@@ -118,22 +124,17 @@ def mark_taken_batch(
     if not dose_ids:
         return get_day_status(on_date)
 
-    key = _today_key(on_date)
-    tracking = _load_tracking()
-    if key not in tracking:
-        tracking[key] = {}
-
     now_str = _format_taken_at(datetime.now(TZ))
-    for dose_id in dose_ids:
-        if taken:
-            tracking[key][dose_id] = {"taken": True, "taken_at": now_str}
-        else:
-            tracking[key][dose_id] = {"taken": False, "taken_at": None}
 
-    _save_tracking(tracking)
-    return {
-        d: _normalize_entry(e) for d, e in tracking[key].items() if not d.startswith("_")
-    }
+    def apply(day: dict[str, Any]) -> None:
+        for dose_id in dose_ids:
+            if taken:
+                day[dose_id] = {"taken": True, "taken_at": now_str}
+            else:
+                day[dose_id] = {"taken": False, "taken_at": None}
+
+    day = persist_day_update(on_date, apply)
+    return _day_status_from_raw(day)
 
 
 def get_today_progress(on_date: date | None = None) -> dict[str, Any]:

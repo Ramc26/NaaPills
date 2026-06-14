@@ -29,33 +29,33 @@
     </header>
 
     <div id="panelTrack">
-      <section class="pt-today" id="todayCard" hidden>
-        <p class="pt-today-label">Today</p>
-        <div class="pt-today-row">
-          <div class="pt-ring-wrap">
-            <svg class="pt-ring" viewBox="0 0 120 120">
-              <circle class="pt-ring-bg" cx="60" cy="60" r="52"/>
-              <circle class="pt-ring-fill" id="ringFill" cx="60" cy="60" r="52"/>
-            </svg>
-            <span class="pt-ring-text" id="ringPct">0%</span>
-          </div>
-          <div class="pt-today-stats">
-            <p class="pt-today-count" id="todayCount">0 / 14</p>
-            <p class="pt-today-sub" id="todaySub">medicines taken</p>
-            <p class="pt-today-ontime" id="todayOntime">0 on time</p>
-          </div>
-        </div>
-      </section>
-
       <section class="pt-stats" id="summary">
         <div class="pt-stat"><span class="pt-stat-num" id="totalDays">—</span><span class="pt-stat-lbl">Days</span></div>
         <div class="pt-stat"><span class="pt-stat-num" id="perfectDays">—</span><span class="pt-stat-lbl">Perfect</span></div>
         <div class="pt-stat"><span class="pt-stat-num" id="windowMins">±15</span><span class="pt-stat-lbl">Window</span></div>
       </section>
 
-      <main class="pt-main" id="trackMain">
-        <p class="pt-loading" id="loading">Loading...</p>
-      </main>
+      <div class="pt-cal-layout">
+        <aside class="pt-mini-cal" id="miniCal" aria-label="Month overview"></aside>
+
+        <div class="pt-cal-main">
+          <div class="pt-cal-scroll" id="calScroll">
+            <p class="pt-loading" id="loading">Loading...</p>
+          </div>
+        </div>
+      </div>
+
+      <section class="pt-day-detail" id="dayDetail" hidden>
+        <div class="pt-day-detail-head">
+          <div>
+            <p class="pt-day-detail-label" id="detailLabel">Day details</p>
+            <h2 class="pt-day-detail-title" id="detailTitle"></h2>
+            <p class="pt-day-detail-summary" id="detailSummary"></p>
+          </div>
+          <button type="button" class="pt-detail-close" id="btnCloseDetail" aria-label="Close">&times;</button>
+        </div>
+        <div class="pt-doses" id="detailDoses"></div>
+      </section>
     </div>
 
     <div id="panelManage" hidden>

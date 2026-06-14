@@ -5,15 +5,9 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from backend.services.data_loader import SUPPLEMENTS_FILE, read_json
-from backend.services.tracking_service import (
-    TZ,
-    _format_taken_at,
-    _load_tracking,
-    _parse_taken_at,
-    _save_tracking,
-    _today_key,
-)
+from backend.services.tracking_persist import load_tracking, persist_day_update, today_key
 
+TZ = ZoneInfo("Asia/Kolkata")
 SUPPLEMENTS_KEY = "_supplements"
 
 WHEN_LABELS = {
@@ -48,6 +42,30 @@ def infer_when(hour: int) -> str:
     if hour < 20:
         return "evening"
     return "bedtime"
+
+
+def _today_key(on_date: date | None = None) -> str:
+    return today_key(on_date)
+
+
+def _load_tracking() -> dict[str, Any]:
+    return load_tracking()
+
+
+def _format_taken_at(dt: datetime) -> str:
+    return dt.astimezone(TZ).isoformat()
+
+
+def _parse_taken_at(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    try:
+        dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=TZ)
+        return dt.astimezone(TZ)
+    except ValueError:
+        return None
 
 
 def _get_day_supplements(on_date: date | None = None) -> dict[str, Any]:
@@ -111,29 +129,29 @@ def log_supplement(
     if when not in WHEN_LABELS:
         when = infer_when(datetime.now(TZ).hour)
 
-    key = _today_key(on_date)
-    tracking = _load_tracking()
-    if key not in tracking:
-        tracking[key] = {}
-    if SUPPLEMENTS_KEY not in tracking[key]:
-        tracking[key][SUPPLEMENTS_KEY] = {}
-
     now = datetime.now(TZ)
-    tracking[key][SUPPLEMENTS_KEY][supplement_id] = {
+    entry = {
         "taken": True,
         "when": when,
         "taken_at": _format_taken_at(now),
     }
-    _save_tracking(tracking)
+
+    def apply(day: dict[str, Any]) -> None:
+        if SUPPLEMENTS_KEY not in day:
+            day[SUPPLEMENTS_KEY] = {}
+        day[SUPPLEMENTS_KEY][supplement_id] = entry
+
+    persist_day_update(on_date, apply)
 
     return get_supplements_today(on_date)
 
 
 def undo_supplement(supplement_id: str, on_date: date | None = None) -> dict[str, Any]:
     """Clear today's supplement log."""
-    key = _today_key(on_date)
-    tracking = _load_tracking()
-    if key in tracking and SUPPLEMENTS_KEY in tracking[key]:
-        tracking[key][SUPPLEMENTS_KEY].pop(supplement_id, None)
-        _save_tracking(tracking)
+
+    def apply(day: dict[str, Any]) -> None:
+        if SUPPLEMENTS_KEY in day:
+            day[SUPPLEMENTS_KEY].pop(supplement_id, None)
+
+    persist_day_update(on_date, apply)
     return get_supplements_today(on_date)
